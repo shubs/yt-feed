@@ -128,7 +128,7 @@ const Hero = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="mt-12 w-full max-w-3xl mx-auto"
             >
-              <h2 className="text-2xl font-bold mb-8 text-gray-800">Yesterday's Videos</h2>
+              <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Yesterday's Videos</h2>
               <div className="space-y-4">
                 {yesterdayVideos.slice(0, 3).map((video) => (
                   <div 
@@ -145,7 +145,7 @@ const Hero = () => {
                         className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                       />
                     </div>
-                    <div className="flex-grow min-w-0">
+                    <div className="flex-grow min-w-0 text-left">
                       <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
                         {video.video_title}
                       </h3>
