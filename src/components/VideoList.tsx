@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import { formatInTimeZone } from "date-fns-tz";
 
 interface Video {
