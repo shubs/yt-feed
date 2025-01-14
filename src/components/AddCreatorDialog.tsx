@@ -103,6 +103,22 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
     try {
       console.log("Form submitted:", values);
       
+      // Check if creator already exists
+      const { data: existingCreator } = await supabase
+        .from('creators')
+        .select('id')
+        .eq('channel_id', channelId)
+        .single();
+
+      if (existingCreator) {
+        toast({
+          title: "Creator already exists",
+          description: "This YouTube channel has already been added.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('creators')
         .insert({
