@@ -16,7 +16,6 @@ interface VideoCardProps {
 const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl }: VideoCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   
-  // Extract video ID from YouTube URL
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
 
   const handlePlayClick = () => {
@@ -27,10 +26,9 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -5 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="overflow-hidden border-2 border-black/5 group hover:border-primary/20 transition-colors duration-200 bg-white/80 backdrop-blur-sm">
+      <Card className="overflow-hidden border-none shadow-none hover:bg-secondary/50 transition-colors duration-200 rounded-none">
         <div className="relative aspect-video bg-black cursor-pointer">
           {isPlaying ? (
             <iframe
@@ -50,7 +48,7 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105" 
               />
               <div 
-                className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity"
                 onClick={handlePlayClick}
               >
                 <motion.div
@@ -63,11 +61,12 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
             </>
           )}
         </div>
-        <CardContent className="p-4">
-          <h3 className="text-xl font-bold mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">{title}</h3>
-          <p className="text-sm text-gray-600 mb-1 hover:text-primary transition-colors">{channelName}</p>
-          <div className="flex justify-between text-sm text-gray-600">
+        <CardContent className="p-3">
+          <h3 className="text-base font-medium line-clamp-2 mb-1">{title}</h3>
+          <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">{channelName}</p>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
             <span>{views.toLocaleString()} views</span>
+            <span>•</span>
             <span>{format(new Date(publishedAt), 'MMM d, yyyy')}</span>
           </div>
         </CardContent>
