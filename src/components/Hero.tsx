@@ -89,20 +89,34 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="mt-12"
+              className="mt-12 w-full max-w-3xl mx-auto"
             >
               <h2 className="text-2xl font-bold mb-8 text-gray-800">Yesterday's Videos</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+              <div className="space-y-4">
                 {yesterdayVideos.slice(0, 3).map((video) => (
-                  <VideoCard
+                  <div 
                     key={video.id}
-                    title={video.video_title}
-                    views={video.views || 0}
-                    thumbnail={video.thumbnail_url}
-                    channelName={video.channel_name}
-                    publishedAt={video.published_at}
-                    videoUrl={video.video_url}
-                  />
+                    className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
+                  >
+                    <div className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md">
+                      <img 
+                        src={video.thumbnail_url} 
+                        alt={video.video_title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-grow min-w-0">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
+                        {video.video_title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-1">{video.channel_name}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span>{(video.views || 0).toLocaleString()} views</span>
+                        <span>•</span>
+                        <span>{new Date(video.published_at).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </motion.div>
