@@ -3,12 +3,16 @@ import { motion, HTMLMotionProps } from "framer-motion";
 import { Slot } from "@radix-ui/react-slot";
 import { forwardRef } from "react";
 
-type ButtonProps = {
+type ButtonBaseProps = {
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "gradient";
   asChild?: boolean;
-} & React.ButtonHTMLAttributes<HTMLButtonElement>;
+};
+
+type ButtonProps = ButtonBaseProps & 
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof HTMLMotionProps<"button">> & 
+  HTMLMotionProps<"button">;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, className, variant = "primary", asChild = false, ...props }, ref) => {
@@ -27,7 +31,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
               className
             )}
             ref={ref}
-            {...props}
+            {...(props as React.ButtonHTMLAttributes<HTMLButtonElement>)}
           >
             {children}
           </Slot>
