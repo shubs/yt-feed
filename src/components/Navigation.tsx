@@ -4,7 +4,7 @@ import { NavBar } from "@/components/ui/tubelight-navbar";
 const Navigation = () => {
   const navItems = [
     { name: "Home", url: "/", icon: Home },
-    { name: "Your Feed", url: "/feed", icon: PlaySquare },
+    { name: "Feed", url: "/feed", icon: PlaySquare },
     { name: "Creators", url: "/creators", icon: Users },
   ];
 
