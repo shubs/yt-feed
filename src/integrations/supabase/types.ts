@@ -36,6 +36,68 @@ export type Database = {
         }
         Relationships: []
       }
+      youtube_videos: {
+        Row: {
+          channel_id: string
+          channel_name: string
+          created_at: string
+          id: string
+          published_at: string
+          rating_average: number | null
+          rating_count: number | null
+          rating_max: number | null
+          rating_min: number | null
+          thumbnail_url: string
+          updated_at: string
+          video_id: string
+          video_title: string
+          video_url: string
+          views: number | null
+        }
+        Insert: {
+          channel_id: string
+          channel_name: string
+          created_at?: string
+          id?: string
+          published_at: string
+          rating_average?: number | null
+          rating_count?: number | null
+          rating_max?: number | null
+          rating_min?: number | null
+          thumbnail_url: string
+          updated_at: string
+          video_id: string
+          video_title: string
+          video_url: string
+          views?: number | null
+        }
+        Update: {
+          channel_id?: string
+          channel_name?: string
+          created_at?: string
+          id?: string
+          published_at?: string
+          rating_average?: number | null
+          rating_count?: number | null
+          rating_max?: number | null
+          rating_min?: number | null
+          thumbnail_url?: string
+          updated_at?: string
+          video_id?: string
+          video_title?: string
+          video_url?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "youtube_videos_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["channel_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
