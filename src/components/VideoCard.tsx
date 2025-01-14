@@ -1,8 +1,9 @@
-import { Play } from "lucide-react";
+import { Play, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { formatInTimeZone } from "date-fns-tz";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import { Button } from "./ui/button";
 
 interface VideoCardProps {
   title: string;
@@ -17,9 +18,15 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
   const [isPlaying, setIsPlaying] = useState(false);
   
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
+  const channelUrl = `https://www.youtube.com/channel/${videoUrl.split('channel/')[1]?.split('/')[0]}`;
 
   const handlePlayClick = () => {
     setIsPlaying(true);
+  };
+
+  const handleChannelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    window.open(channelUrl, '_blank');
   };
 
   return (
@@ -63,7 +70,18 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
         </div>
         <CardContent className="p-3">
           <h3 className="text-base font-medium line-clamp-2 mb-1">{title}</h3>
-          <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">{channelName}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">{channelName}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 px-2"
+              onClick={handleChannelClick}
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span className="sr-only">Visit channel</span>
+            </Button>
+          </div>
           <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
             <span>{views.toLocaleString()} views</span>
             <span>•</span>
