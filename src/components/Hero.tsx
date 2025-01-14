@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import VideoList from "./VideoList";
 import StatsDisplay from "./StatsDisplay";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -101,6 +103,15 @@ const Hero = () => {
         >
           Your Gateway to Inspirational Content
         </motion.h1>
+
+        <div className="flex gap-4 justify-center">
+          <Button asChild variant="default" size="lg">
+            <Link to="/feed">Your Feed</Link>
+          </Button>
+          <Button asChild variant="secondary" size="lg">
+            <Link to="/creators">Creators</Link>
+          </Button>
+        </div>
 
         {isLoading ? (
           <span>Loading...</span>
