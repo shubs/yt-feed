@@ -43,26 +43,27 @@ const Creators = () => {
     try {
       console.log("Deleting creator:", creator);
       
-      // First, delete all associated videos using channel_id
-      const { error: videosError } = await supabase
+      // Delete videos first, using a separate query
+      const videosResult = await supabase
         .from('youtube_videos')
         .delete()
         .eq('channel_id', creator.channel_id);
 
-      if (videosError) {
-        console.error("Error deleting videos:", videosError);
-        throw videosError;
+      if (videosResult.error) {
+        console.error("Error deleting videos:", videosResult.error);
+        throw videosResult.error;
       }
 
-      // Then, delete the creator using id
-      const { error: creatorError } = await supabase
+      // After videos are deleted, delete the creator
+      const creatorResult = await supabase
         .from('creators')
         .delete()
-        .eq('id', creator.id);
+        .eq('id', creator.id)
+        .single();
 
-      if (creatorError) {
-        console.error("Error deleting creator:", creatorError);
-        throw creatorError;
+      if (creatorResult.error) {
+        console.error("Error deleting creator:", creatorResult.error);
+        throw creatorResult.error;
       }
 
       toast({
@@ -71,9 +72,9 @@ const Creators = () => {
       });
       
       // Refresh the creators list
-      fetchCreators();
+      await fetchCreators();
     } catch (error) {
-      console.error("Error deleting creator:", error);
+      console.error("Error in delete operation:", error);
       toast({
         title: "Error",
         description: "Failed to delete creator. Please try again.",
