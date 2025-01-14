@@ -18,7 +18,8 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
   const [isPlaying, setIsPlaying] = useState(false);
   
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
-  const channelUrl = `https://www.youtube.com/channel/${videoUrl.split('channel/')[1]?.split('/')[0]}`;
+  const channelId = videoUrl.split('channel/')[1]?.split('/')[0];
+  const channelUrl = `https://www.youtube.com/channel/${channelId}`;
 
   const handlePlayClick = () => {
     setIsPlaying(true);
@@ -26,7 +27,9 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
 
   const handleChannelClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(channelUrl, '_blank');
+    if (channelId) {
+      window.open(channelUrl, '_blank');
+    }
   };
 
   return (
