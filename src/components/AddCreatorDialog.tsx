@@ -51,6 +51,24 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
     },
   });
 
+  const fetchVideos = async () => {
+    try {
+      console.log("Fetching videos...");
+      const { data, error } = await supabase.functions.invoke('fetch-youtube-videos');
+      
+      if (error) {
+        console.error("Error fetching videos:", error);
+        throw error;
+      }
+      
+      console.log("Videos fetched successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Error in fetchVideos:", error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
@@ -118,9 +136,12 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         return;
       }
 
+      // Fetch videos for the newly added creator
+      await fetchVideos();
+
       toast({
         title: "Success",
-        description: "Creator added successfully",
+        description: "Creator added and videos fetched successfully",
       });
 
       form.reset();
