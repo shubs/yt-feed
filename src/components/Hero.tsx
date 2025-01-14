@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const Hero = () => {
@@ -143,13 +143,14 @@ const Hero = () => {
             <Button
               onClick={handleManualRefresh}
               disabled={isRefreshing}
-              className="ml-2 !p-2 h-8"
+              className="ml-2 !p-2 h-8 w-8"
               variant="secondary"
+              title="Refresh videos"
             >
               {isRefreshing ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Refresh Now"
+                <RefreshCw className="h-4 w-4" />
               )}
             </Button>
           </motion.div>
