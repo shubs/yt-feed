@@ -156,11 +156,18 @@ const Hero = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="space-y-8"
         >
-          <Link to="/feed">
-            <Button className="hover:scale-105 transition-transform duration-200">
-              Feed
-            </Button>
-          </Link>
+          <div className="flex gap-4 justify-center">
+            <Link to="/feed">
+              <Button className="hover:scale-105 transition-transform duration-200">
+                Feed
+              </Button>
+            </Link>
+            <Link to="/creators">
+              <Button className="hover:scale-105 transition-transform duration-200">
+                Creators
+              </Button>
+            </Link>
+          </div>
 
           {yesterdayVideos && yesterdayVideos.length > 0 && (
             <motion.div
