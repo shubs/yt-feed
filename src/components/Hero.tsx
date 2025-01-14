@@ -157,16 +157,16 @@ const Hero = () => {
           className="space-y-8"
         >
           <div className="flex gap-4 justify-center">
-            <Link to="/feed">
-              <Button variant="gradient">
+            <Button variant="gradient" asChild>
+              <Link to="/feed">
                 Your Feed
-              </Button>
-            </Link>
-            <Link to="/creators">
-              <Button variant="gradient">
+              </Link>
+            </Button>
+            <Button variant="gradient" asChild>
+              <Link to="/creators">
                 Creators
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
 
           {yesterdayVideos && yesterdayVideos.length > 0 && (

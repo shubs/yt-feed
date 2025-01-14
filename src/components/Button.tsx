@@ -1,15 +1,19 @@
 import { cn } from "@/lib/utils";
 import { motion, HTMLMotionProps } from "framer-motion";
+import { Slot } from "@radix-ui/react-slot";
 
 type ButtonProps = HTMLMotionProps<"button"> & {
   children: React.ReactNode;
   className?: string;
   variant?: "primary" | "secondary" | "gradient";
+  asChild?: boolean;
 };
 
-const Button = ({ children, className, variant = "primary", ...props }: ButtonProps) => {
+const Button = ({ children, className, variant = "primary", asChild = false, ...props }: ButtonProps) => {
+  const Comp = asChild ? Slot : motion.button;
+  
   return (
-    <motion.button
+    <Comp
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       className={cn(
@@ -22,7 +26,7 @@ const Button = ({ children, className, variant = "primary", ...props }: ButtonPr
       {...props}
     >
       {children}
-    </motion.button>
+    </Comp>
   );
 };
 
