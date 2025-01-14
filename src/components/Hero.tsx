@@ -159,7 +159,7 @@ const Hero = () => {
           <div className="flex gap-4 justify-center">
             <Link to="/feed">
               <Button variant="gradient" className="hover:scale-105 transition-transform duration-200">
-                Feed
+                Your Feed
               </Button>
             </Link>
             <Link to="/creators">
