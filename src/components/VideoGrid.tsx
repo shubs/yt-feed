@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import VideoCard from "./VideoCard";
+import { subDays, startOfDay, endOfDay } from "date-fns";
 
 interface VideoGridProps {
   dateFilter: string;
@@ -21,16 +22,28 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
       }
 
       // Apply date filter
-      if (dateFilter === 'newest') {
-        query = query.order('published_at', { ascending: false });
-      } else if (dateFilter === 'oldest') {
-        query = query.order('published_at', { ascending: true });
-      } else {
-        query = query.order('published_at', { ascending: false }); // Default to newest
+      const now = new Date();
+      
+      if (dateFilter === 'yesterday') {
+        const yesterday = subDays(now, 1);
+        query = query
+          .gte('published_at', startOfDay(yesterday).toISOString())
+          .lte('published_at', endOfDay(yesterday).toISOString());
+      } else if (dateFilter === 'last7days') {
+        const sevenDaysAgo = subDays(now, 7);
+        query = query.gte('published_at', startOfDay(sevenDaysAgo).toISOString());
+      } else if (dateFilter === 'last15days') {
+        const fifteenDaysAgo = subDays(now, 15);
+        query = query.gte('published_at', startOfDay(fifteenDaysAgo).toISOString());
       }
 
+      // Always order by published_at in descending order
+      query = query.order('published_at', { ascending: false });
+
+      console.log('Fetching videos with filter:', dateFilter);
       const { data, error } = await query;
       if (error) throw error;
+      console.log('Fetched videos:', data?.length);
       return data;
     }
   });

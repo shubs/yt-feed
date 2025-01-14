@@ -31,14 +31,14 @@ const FilterBar = ({ onDateFilterChange, onCreatorFilterChange, selectedCreator 
   return (
     <div className="flex items-center gap-4 mb-8">
       <span className="text-xl font-medium">Filter</span>
-      <Select defaultValue="date" onValueChange={onDateFilterChange}>
+      <Select defaultValue="yesterday" onValueChange={onDateFilterChange}>
         <SelectTrigger className="w-[180px] border-2 border-black">
           <SelectValue placeholder="Date" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="date">Date</SelectItem>
-          <SelectItem value="newest">Newest</SelectItem>
-          <SelectItem value="oldest">Oldest</SelectItem>
+          <SelectItem value="yesterday">Yesterday</SelectItem>
+          <SelectItem value="last7days">Last 7 Days</SelectItem>
+          <SelectItem value="last15days">Last 15 Days</SelectItem>
         </SelectContent>
       </Select>
       <Select value={selectedCreator} onValueChange={onCreatorFilterChange}>
