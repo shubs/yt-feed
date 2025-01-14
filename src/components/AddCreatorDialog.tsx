@@ -66,47 +66,29 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         return;
       }
 
-      // First, search for the channel
-      const searchResponse = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/search?part=snippet&q=${channelHandle}&type=channel&key=AIzaSyC3HQ6oKt_j9MkwV7LSfO_WXXL-v2_7OOY`
+      // Call our Edge Function to get channel details
+      const { data: channelDetails, error: functionError } = await supabase.functions.invoke(
+        'youtube-channel',
+        {
+          body: { channelHandle }
+        }
       );
-      const searchData = await searchResponse.json();
-      console.log("Channel search API Response:", searchData);
 
-      if (!searchData.items?.length) {
+      if (functionError) {
+        console.error("Edge function error:", functionError);
         toast({
           title: "Error",
-          description: "Channel not found",
+          description: "Failed to fetch channel details",
           variant: "destructive",
         });
         return;
       }
-
-      const channelId = searchData.items[0].id.channelId;
-
-      // Then, get detailed channel information
-      const channelResponse = await fetch(
-        `https://youtube.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=AIzaSyC3HQ6oKt_j9MkwV7LSfO_WXXL-v2_7OOY`
-      );
-      const channelData = await channelResponse.json();
-      console.log("Channel details API Response:", channelData);
-
-      if (!channelData.items?.length) {
-        toast({
-          title: "Error",
-          description: "Could not fetch channel details",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const channelDetails = channelData.items[0];
 
       // Check if creator already exists
       const { data: existingCreator } = await supabase
         .from('creators')
         .select('id')
-        .eq('channel_id', channelId)
+        .eq('channel_id', channelDetails.id)
         .maybeSingle();
 
       if (existingCreator) {
@@ -121,8 +103,8 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
       // Insert the new creator
       const { error: insertError } = await supabase.from("creators").insert({
         name: channelDetails.snippet.title,
-        channel_url: `https://youtube.com/channel/${channelId}`,
-        channel_id: channelId,
+        channel_url: `https://youtube.com/channel/${channelDetails.id}`,
+        channel_id: channelDetails.id,
         channel_thumbnail: channelDetails.snippet.thumbnails.default.url,
       });
 
