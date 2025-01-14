@@ -6,7 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Create a single supabase client for interacting with your database
 const supabase = createClient(
   Deno.env.get('SUPABASE_URL') ?? '',
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -35,6 +34,28 @@ async function fetchYouTubeRSS(channelId: string) {
   }
 }
 
+async function fetchVideoStatistics(videoIds: string[]) {
+  const YOUTUBE_API_KEY = Deno.env.get('YOUTUBE_API_KEY')
+  if (!YOUTUBE_API_KEY) {
+    throw new Error('YouTube API key not found')
+  }
+
+  const videoIdsString = videoIds.join(',')
+  const url = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIdsString}&key=${YOUTUBE_API_KEY}`
+  
+  try {
+    const response = await fetch(url)
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    const data = await response.json()
+    return data.items
+  } catch (error) {
+    console.error('Error fetching video statistics:', error)
+    throw error
+  }
+}
+
 async function processVideoData(feed: any, channelId: string) {
   if (!feed.feed || !feed.feed.entry) {
     console.log(`No videos found for channel ${channelId}`)
@@ -46,20 +67,34 @@ async function processVideoData(feed: any, channelId: string) {
   
   console.log(`Processing ${entries.length} videos for channel ${channelId}`)
 
+  // Extract video IDs for batch statistics request
+  const videoIds = entries.map((entry: any) => entry.id.split(':').pop())
+  
+  // Fetch statistics for all videos in one request
+  const statistics = await fetchVideoStatistics(videoIds)
+  const statsMap = new Map(statistics.map((stat: any) => [stat.id, stat.statistics]))
+
   for (const entry of entries) {
+    const videoId = entry.id.split(':').pop()
+    const stats = statsMap.get(videoId) || { viewCount: 0, likeCount: 0 }
+    
     const videoData = {
       channel_id: channelId,
       channel_name: channelName,
-      video_id: entry.id.split(':').pop(),
+      video_id: videoId,
       video_title: entry.title,
       video_url: entry.link["@_href"],
-      thumbnail_url: `https://i.ytimg.com/vi/${entry.id.split(':').pop()}/hqdefault.jpg`,
+      thumbnail_url: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
       published_at: new Date(entry.published),
       updated_at: new Date(entry.updated),
-      views: 0, // These will be updated later if we add YouTube API integration
-      rating_count: 0,
-      rating_average: 0
+      views: parseInt(stats.viewCount) || 0,
+      rating_count: parseInt(stats.likeCount) || 0,
+      rating_average: stats.likeCount ? 5 : 0, // Using likes as a proxy for rating
+      rating_min: 1,
+      rating_max: 5
     }
+
+    console.log(`Inserting video data for ${videoId}:`, videoData)
 
     const { error } = await supabase
       .from('youtube_videos')
@@ -76,13 +111,11 @@ async function processVideoData(feed: any, channelId: string) {
 }
 
 Deno.serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    // Fetch all creators from the database
     const { data: creators, error: fetchError } = await supabase
       .from('creators')
       .select('channel_id')
@@ -91,14 +124,12 @@ Deno.serve(async (req) => {
     
     console.log(`Found ${creators?.length || 0} creators to process`)
 
-    // Process each creator's YouTube channel
     for (const creator of creators || []) {
       try {
         const feed = await fetchYouTubeRSS(creator.channel_id)
         await processVideoData(feed, creator.channel_id)
       } catch (error) {
         console.error(`Error processing channel ${creator.channel_id}:`, error)
-        // Continue with next creator even if one fails
         continue
       }
     }
