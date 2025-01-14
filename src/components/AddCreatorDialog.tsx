@@ -24,9 +24,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
   youtubeUrl: z.string().url({
     message: "Please enter a valid YouTube URL.",
   }),
@@ -35,7 +32,7 @@ const formSchema = z.object({
 interface AddCreatorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreatorAdded?: () => void;  // Made optional to maintain backwards compatibility
+  onCreatorAdded?: () => void;
 }
 
 const extractChannelId = (url: string) => {
@@ -50,7 +47,6 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       youtubeUrl: "",
     },
   });
@@ -147,7 +143,7 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
 
       form.reset();
       onOpenChange(false);
-      onCreatorAdded?.();  // Call the callback if provided
+      onCreatorAdded?.();
     } catch (error) {
       console.error("Error:", error);
       toast({
@@ -171,19 +167,6 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Creator name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="youtubeUrl"
