@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
 import Creators from "./pages/Creators";
+import Daily from "./pages/Daily";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/creators" element={<Creators />} />
+            <Route path="/daily" element={<Daily />} />
           </Routes>
         </BrowserRouter>
       </div>

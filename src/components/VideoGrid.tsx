@@ -6,11 +6,12 @@ import { subDays, startOfDay, endOfDay } from "date-fns";
 interface VideoGridProps {
   dateFilter: string;
   creatorFilter: string;
+  customDate?: Date;
 }
 
-const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
+const VideoGrid = ({ dateFilter, creatorFilter, customDate }: VideoGridProps) => {
   const { data: videos, isLoading } = useQuery({
-    queryKey: ['videos', dateFilter, creatorFilter],
+    queryKey: ['videos', dateFilter, creatorFilter, customDate?.toISOString()],
     queryFn: async () => {
       let query = supabase
         .from('youtube_videos')
@@ -30,7 +31,11 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
       // Apply date filter
       const now = new Date();
       
-      if (dateFilter === 'yesterday') {
+      if (dateFilter === 'custom' && customDate) {
+        query = query
+          .gte('published_at', startOfDay(customDate).toISOString())
+          .lte('published_at', endOfDay(customDate).toISOString());
+      } else if (dateFilter === 'yesterday') {
         const yesterday = subDays(now, 1);
         query = query
           .gte('published_at', startOfDay(yesterday).toISOString())
@@ -51,7 +56,7 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
         query = query.order('published_at', { ascending: false });
       }
 
-      console.log('Fetching videos with filter:', dateFilter);
+      console.log('Fetching videos with filter:', dateFilter, 'and date:', customDate);
       const { data, error } = await query;
       if (error) throw error;
       console.log('Fetched videos:', data?.length);

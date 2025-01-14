@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Home, PlaySquare, Users } from "lucide-react";
+import { Home, PlaySquare, Users, Calendar } from "lucide-react";
 
 const Navigation = () => {
   const location = useLocation();
@@ -8,6 +8,7 @@ const Navigation = () => {
     { to: "/", label: "Home", icon: Home },
     { to: "/feed", label: "Feed", icon: PlaySquare },
     { to: "/creators", label: "Creators", icon: Users },
+    { to: "/daily", label: "Daily", icon: Calendar },
   ];
 
   return (
