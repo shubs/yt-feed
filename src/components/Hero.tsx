@@ -133,7 +133,7 @@ const Hero = () => {
             transition={{ duration: 0.5 }}
             className="text-sm text-gray-500 flex items-center gap-2 justify-center"
           >
-            <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
+            <span>Last updated video: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
             <Button
               onClick={handleManualRefresh}
               disabled={isRefreshing}
