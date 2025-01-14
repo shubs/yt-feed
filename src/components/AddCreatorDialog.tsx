@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -16,10 +17,12 @@ const formSchema = z.object({
 interface AddCreatorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreatorAdded?: () => void;
 }
 
-const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
+const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDialogProps) => {
   const [channelId, setChannelId] = useState("");
+  const [channelThumbnail, setChannelThumbnail] = useState("");
   const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
@@ -41,16 +44,29 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
     }
   };
 
-  const fetchChannelId = async (channelName: string) => {
+  const fetchChannelDetails = async (channelName: string) => {
     try {
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${channelName}&key=AIzaSyCVnOXgp3OkLiOSs2VJGplq1Qm6KBioJZ4`
       );
       const data = await response.json();
-      console.log("API Response:", data);
+      console.log("Channel search API Response:", data);
       
       if (data.items && data.items.length > 0) {
-        setChannelId(data.items[0].id.channelId);
+        const channelId = data.items[0].id.channelId;
+        setChannelId(channelId);
+        
+        // Fetch channel details to get thumbnail
+        const channelResponse = await fetch(
+          `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=AIzaSyCVnOXgp3OkLiOSs2VJGplq1Qm6KBioJZ4`
+        );
+        const channelData = await channelResponse.json();
+        console.log("Channel details API Response:", channelData);
+        
+        if (channelData.items && channelData.items.length > 0) {
+          const thumbnail = channelData.items[0].snippet.thumbnails.default.url;
+          setChannelThumbnail(thumbnail);
+        }
       } else {
         toast({
           title: "Channel not found",
@@ -59,7 +75,7 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
         });
       }
     } catch (error) {
-      console.error("Error fetching channel ID:", error);
+      console.error("Error fetching channel details:", error);
       toast({
         title: "Error",
         description: "Failed to fetch channel details. Please try again.",
@@ -69,19 +85,38 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log("Form submitted:", values);
-    const channelName = extractChannelName(values.youtubeUrl);
-    if (channelName) {
-      await fetchChannelId(channelName);
+    try {
+      console.log("Form submitted:", values);
+      
+      const { error } = await supabase
+        .from('creators')
+        .insert({
+          name: values.name,
+          channel_url: values.youtubeUrl,
+          channel_id: channelId,
+          channel_thumbnail: channelThumbnail,
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Creator added successfully!",
+      });
+      
+      onOpenChange(false);
+      form.reset();
+      setChannelId("");
+      setChannelThumbnail("");
+      onCreatorAdded?.();
+    } catch (error) {
+      console.error("Error saving creator:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save creator. Please try again.",
+        variant: "destructive",
+      });
     }
-    // Here you would typically save the creator data
-    toast({
-      title: "Success",
-      description: "Creator added successfully!",
-    });
-    onOpenChange(false);
-    form.reset();
-    setChannelId("");
   };
 
   return (
@@ -119,7 +154,7 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
                         field.onChange(e);
                         if (e.target.value) {
                           const channelName = extractChannelName(e.target.value);
-                          if (channelName) fetchChannelId(channelName);
+                          if (channelName) fetchChannelDetails(channelName);
                         }
                       }}
                     />
@@ -132,6 +167,12 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
               <FormLabel>Channel ID</FormLabel>
               <Input value={channelId} readOnly disabled placeholder="Channel ID will appear here" />
             </div>
+            {channelThumbnail && (
+              <div className="space-y-2">
+                <FormLabel>Channel Thumbnail</FormLabel>
+                <img src={channelThumbnail} alt="Channel thumbnail" className="w-20 h-20 rounded-full" />
+              </div>
+            )}
             <div className="flex justify-end">
               <Button type="submit">Submit</Button>
             </div>
