@@ -15,16 +15,21 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
         .from('youtube_videos')
         .select('*');
 
+      // Apply creator filter
+      if (creatorFilter !== 'all') {
+        query = query.eq('channel_id', creatorFilter);
+      }
+
       // Apply date filter
       if (dateFilter === 'newest') {
         query = query.order('published_at', { ascending: false });
       } else if (dateFilter === 'oldest') {
         query = query.order('published_at', { ascending: true });
+      } else {
+        query = query.order('published_at', { ascending: false }); // Default to newest
       }
 
-      // Apply creator filter (for now, we'll just fetch all since we don't have following/suggested logic yet)
       const { data, error } = await query;
-
       if (error) throw error;
       return data;
     }
@@ -50,6 +55,7 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
           thumbnail={video.thumbnail_url}
           channelName={video.channel_name}
           publishedAt={video.published_at}
+          videoUrl={video.video_url}
         />
       ))}
     </div>

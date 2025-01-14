@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -9,9 +11,23 @@ import {
 interface FilterBarProps {
   onDateFilterChange: (value: string) => void;
   onCreatorFilterChange: (value: string) => void;
+  selectedCreator: string;
 }
 
-const FilterBar = ({ onDateFilterChange, onCreatorFilterChange }: FilterBarProps) => {
+const FilterBar = ({ onDateFilterChange, onCreatorFilterChange, selectedCreator }: FilterBarProps) => {
+  const { data: creators } = useQuery({
+    queryKey: ['creators'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('creators')
+        .select('*')
+        .order('name');
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
   return (
     <div className="flex items-center gap-4 mb-8">
       <span className="text-xl font-medium">Filter</span>
@@ -25,14 +41,17 @@ const FilterBar = ({ onDateFilterChange, onCreatorFilterChange }: FilterBarProps
           <SelectItem value="oldest">Oldest</SelectItem>
         </SelectContent>
       </Select>
-      <Select defaultValue="all" onValueChange={onCreatorFilterChange}>
+      <Select value={selectedCreator} onValueChange={onCreatorFilterChange}>
         <SelectTrigger className="w-[180px] border-2 border-black">
           <SelectValue placeholder="Creators" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="all">All Creators</SelectItem>
-          <SelectItem value="following">Following</SelectItem>
-          <SelectItem value="suggested">Suggested</SelectItem>
+          {creators?.map((creator) => (
+            <SelectItem key={creator.id} value={creator.channel_id}>
+              {creator.name}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
     </div>

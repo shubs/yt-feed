@@ -14,6 +14,7 @@ const Feed = () => {
         <FilterBar
           onDateFilterChange={setDateFilter}
           onCreatorFilterChange={setCreatorFilter}
+          selectedCreator={creatorFilter}
         />
         <VideoGrid dateFilter={dateFilter} creatorFilter={creatorFilter} />
       </main>
