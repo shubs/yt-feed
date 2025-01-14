@@ -1,6 +1,6 @@
 import { Play } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -67,7 +67,7 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
           <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
             <span>{views.toLocaleString()} views</span>
             <span>•</span>
-            <span>{format(new Date(publishedAt), 'MMM d, yyyy')}</span>
+            <span>{formatInTimeZone(new Date(publishedAt), 'Europe/Paris', 'PPP')}</span>
           </div>
         </CardContent>
       </Card>

@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import Button from "./Button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay, subDays, formatDistanceToNow } from "date-fns";
+import { startOfDay, endOfDay, subDays } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import VideoCard from "./VideoCard";
 
 const Hero = () => {
@@ -104,7 +105,7 @@ const Hero = () => {
             transition={{ duration: 0.5 }}
             className="text-sm text-gray-500"
           >
-            Last updated: {formatDistanceToNow(new Date(lastUpdateTime), { addSuffix: true })}
+            Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}
           </motion.div>
         )}
 
@@ -152,7 +153,7 @@ const Hero = () => {
                       <div className="flex items-center gap-2 text-sm text-gray-600">
                         <span>{(video.views || 0).toLocaleString()} views</span>
                         <span>•</span>
-                        <span>{new Date(video.published_at).toLocaleDateString()}</span>
+                        <span>{formatInTimeZone(new Date(video.published_at), 'Europe/Paris', 'PPP')}</span>
                       </div>
                     </div>
                   </div>
