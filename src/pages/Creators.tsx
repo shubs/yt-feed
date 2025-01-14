@@ -41,31 +41,49 @@ const Creators = () => {
 
   const handleDelete = async (creator: Creator) => {
     try {
-      console.log("Deleting creator:", creator);
+      console.log("Starting deletion process for creator:", creator);
       
-      // Delete videos first, using a separate query
-      const videosResult = await supabase
+      // First check if there are any videos for this creator
+      const { data: videos, error: checkError } = await supabase
         .from('youtube_videos')
-        .delete()
+        .select('video_id')
         .eq('channel_id', creator.channel_id);
-
-      if (videosResult.error) {
-        console.error("Error deleting videos:", videosResult.error);
-        throw videosResult.error;
+        
+      if (checkError) {
+        console.error("Error checking videos:", checkError);
+        throw checkError;
       }
 
-      // After videos are deleted, delete the creator
-      const creatorResult = await supabase
+      console.log(`Found ${videos?.length || 0} videos to delete`);
+
+      if (videos && videos.length > 0) {
+        // Delete all videos first
+        const { error: videosError } = await supabase
+          .from('youtube_videos')
+          .delete()
+          .eq('channel_id', creator.channel_id);
+
+        if (videosError) {
+          console.error("Error deleting videos:", videosError);
+          throw videosError;
+        }
+        
+        console.log("Successfully deleted associated videos");
+      }
+
+      // Now delete the creator
+      const { error: creatorError } = await supabase
         .from('creators')
         .delete()
-        .eq('id', creator.id)
-        .single();
+        .eq('id', creator.id);
 
-      if (creatorResult.error) {
-        console.error("Error deleting creator:", creatorResult.error);
-        throw creatorResult.error;
+      if (creatorError) {
+        console.error("Error deleting creator:", creatorError);
+        throw creatorError;
       }
 
+      console.log("Successfully deleted creator");
+      
       toast({
         title: "Success",
         description: "Creator and associated videos deleted successfully",
