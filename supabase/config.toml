@@ -12,5 +12,5 @@ port = 54322
 enabled = true
 port = 54323
 
-[[fetch-youtube-videos.function]]
+[functions.fetch-youtube-videos]
 verify_jwt = false
