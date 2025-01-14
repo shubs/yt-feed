@@ -1,8 +1,12 @@
+import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
+import AddCreatorDialog from "@/components/AddCreatorDialog";
 
 const Creators = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  
   // Mock data for creators
   const creators = [
     {
@@ -30,7 +34,10 @@ const Creators = () => {
           </Card>
 
           {/* Add New Card */}
-          <Card className="aspect-square border border-gray-300 cursor-pointer hover:border-gray-400 transition-colors">
+          <Card 
+            className="aspect-square border border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
+            onClick={() => setDialogOpen(true)}
+          >
             <CardContent className="p-4 h-full flex flex-col items-center justify-center gap-2">
               <Plus className="w-8 h-8" />
               <span className="font-medium">Add New</span>
@@ -38,6 +45,11 @@ const Creators = () => {
           </Card>
         </div>
       </main>
+      
+      <AddCreatorDialog 
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+      />
     </div>
   );
 };
