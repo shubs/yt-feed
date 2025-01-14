@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import AddCreatorDialog from "@/components/AddCreatorDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface Creator {
   id: string;
@@ -40,16 +40,28 @@ const Creators = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase
+      // First, delete all associated videos
+      const { error: videosError } = await supabase
+        .from('youtube_videos')
+        .delete()
+        .eq('channel_id', id);
+
+      if (videosError) {
+        console.error("Error deleting videos:", videosError);
+        throw videosError;
+      }
+
+      // Then, delete the creator
+      const { error: creatorError } = await supabase
         .from('creators')
         .delete()
         .eq('id', id);
 
-      if (error) throw error;
+      if (creatorError) throw creatorError;
 
       toast({
         title: "Success",
-        description: "Creator deleted successfully",
+        description: "Creator and associated videos deleted successfully",
       });
       
       // Refresh the creators list
