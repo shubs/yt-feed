@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Feed from "./pages/Feed";
+import Creators from "./pages/Creators";
 
 const queryClient = new QueryClient();
 
@@ -17,7 +18,7 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/feed" element={<Feed />} />
-          <Route path="/creators" element={<Index />} />
+          <Route path="/creators" element={<Creators />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
