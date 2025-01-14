@@ -43,44 +43,25 @@ const Creators = () => {
     try {
       console.log("Starting deletion process for creator:", creator);
       
-      // First check if there are any videos for this creator
-      const { data: videos, error: checkError } = await supabase
+      // First delete all videos for this creator
+      const { error: videosError } = await supabase
         .from('youtube_videos')
-        .select('video_id')
-        .eq('channel_id', creator.channel_id);
-        
-      if (checkError) {
-        console.error("Error checking videos:", checkError);
-        throw checkError;
-      }
+        .delete()
+        .eq('channel_id', creator.channel_id)
+        .throwOnError();
 
-      console.log(`Found ${videos?.length || 0} videos to delete`);
+      if (videosError) throw videosError;
+      
+      console.log("Successfully deleted associated videos");
 
-      if (videos && videos.length > 0) {
-        // Delete all videos first
-        const { error: videosError } = await supabase
-          .from('youtube_videos')
-          .delete()
-          .eq('channel_id', creator.channel_id);
-
-        if (videosError) {
-          console.error("Error deleting videos:", videosError);
-          throw videosError;
-        }
-        
-        console.log("Successfully deleted associated videos");
-      }
-
-      // Now delete the creator
+      // Then delete the creator
       const { error: creatorError } = await supabase
         .from('creators')
         .delete()
-        .eq('id', creator.id);
+        .eq('id', creator.id)
+        .throwOnError();
 
-      if (creatorError) {
-        console.error("Error deleting creator:", creatorError);
-        throw creatorError;
-      }
+      if (creatorError) throw creatorError;
 
       console.log("Successfully deleted creator");
       
