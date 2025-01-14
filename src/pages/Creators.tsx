@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import AddCreatorDialog from "@/components/AddCreatorDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface Creator {
   id: string;
@@ -38,6 +39,32 @@ const Creators = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('creators')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Creator deleted successfully",
+      });
+      
+      // Refresh the creators list
+      fetchCreators();
+    } catch (error) {
+      console.error("Error deleting creator:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete creator. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     fetchCreators();
   }, []);
@@ -48,7 +75,7 @@ const Creators = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {creators.map((creator) => (
-            <Card key={creator.id} className="aspect-square border border-gray-300">
+            <Card key={creator.id} className="aspect-square border border-gray-300 group relative">
               <CardContent className="p-4 h-full flex flex-col items-center justify-center gap-2">
                 <img
                   src={creator.channel_thumbnail}
@@ -56,6 +83,15 @@ const Creators = () => {
                   className="w-20 h-20 rounded-full mb-2"
                 />
                 <span className="font-medium text-center">{creator.name}</span>
+                
+                {/* Delete button that appears on hover */}
+                <button
+                  onClick={() => handleDelete(creator.id)}
+                  className="absolute top-2 right-2 p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  aria-label="Delete creator"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </CardContent>
             </Card>
           ))}
