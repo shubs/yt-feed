@@ -5,7 +5,6 @@ import { Plus, Trash2 } from "lucide-react";
 import AddCreatorDialog from "@/components/AddCreatorDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 
 interface Creator {
   id: string;

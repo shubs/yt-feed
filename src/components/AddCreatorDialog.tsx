@@ -35,9 +35,16 @@ const formSchema = z.object({
 interface AddCreatorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onCreatorAdded?: () => void;  // Made optional to maintain backwards compatibility
 }
 
-const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
+const extractChannelId = (url: string) => {
+  const regex = /(?:youtube\.com\/(?:@|c\/|channel\/|user\/)?|youtu\.be\/)([^\/\n\s]+)/;
+  const match = url.match(regex);
+  return match ? match[1] : null;
+};
+
+const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDialogProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
@@ -47,12 +54,6 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
       youtubeUrl: "",
     },
   });
-
-  const extractChannelId = (url: string) => {
-    const regex = /(?:youtube\.com\/(?:@|c\/|channel\/|user\/)?|youtu\.be\/)([^\/\n\s]+)/;
-    const match = url.match(regex);
-    return match ? match[1] : null;
-  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -146,6 +147,7 @@ const AddCreatorDialog = ({ open, onOpenChange }: AddCreatorDialogProps) => {
 
       form.reset();
       onOpenChange(false);
+      onCreatorAdded?.();  // Call the callback if provided
     } catch (error) {
       console.error("Error:", error);
       toast({
