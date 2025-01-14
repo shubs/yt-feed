@@ -104,11 +104,11 @@ const Hero = () => {
           Your Gateway to Inspirational Content
         </motion.h1>
 
-        <div className="flex gap-4 justify-center mb-8">
-          <Button asChild variant="default" size="lg" className="w-32">
+        <div className="flex gap-4 justify-center mb-12">
+          <Button asChild variant="default" size="lg" className="w-28 bg-[#ea384c] hover:bg-[#ea384c]/90">
             <Link to="/feed" className="w-full">Your Feed</Link>
           </Button>
-          <Button asChild variant="secondary" size="lg" className="w-32">
+          <Button asChild variant="secondary" size="lg" className="w-28">
             <Link to="/creators" className="w-full">Creators</Link>
           </Button>
         </div>
