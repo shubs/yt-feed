@@ -157,13 +157,13 @@ const Hero = () => {
           className="space-y-8"
         >
           <div className="flex gap-4 justify-center">
-            <Link to="/feed">
-              <Button className="hover:scale-105 transition-transform duration-200">
+            <Link to="/feed" className="contents">
+              <Button>
                 Your Feed
               </Button>
             </Link>
-            <Link to="/creators">
-              <Button className="hover:scale-105 transition-transform duration-200">
+            <Link to="/creators" className="contents">
+              <Button>
                 Creators
               </Button>
             </Link>
