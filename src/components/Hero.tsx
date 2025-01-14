@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Button from "./Button";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay, subDays } from "date-fns";
+import { startOfDay, endOfDay, subDays, formatDistanceToNow } from "date-fns";
 import VideoCard from "./VideoCard";
 
 const Hero = () => {
@@ -30,6 +30,26 @@ const Hero = () => {
       console.log('Yesterday videos:', data);
       return data || [];
     }
+  });
+
+  const { data: lastUpdateTime } = useQuery({
+    queryKey: ['lastUpdateTime'],
+    queryFn: async () => {
+      console.log('Fetching last update time');
+      const { data, error } = await supabase
+        .from('youtube_videos')
+        .select('updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error fetching last update time:', error);
+        throw error;
+      }
+
+      return data?.[0]?.updated_at;
+    },
+    refetchInterval: 1000 * 60 * 5 // Refetch every 5 minutes
   });
 
   const handleVideoClick = (videoUrl: string) => {
@@ -76,6 +96,18 @@ const Hero = () => {
             </>
           )}
         </motion.p>
+
+        {lastUpdateTime && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-sm text-gray-500"
+          >
+            Last updated: {formatDistanceToNow(new Date(lastUpdateTime), { addSuffix: true })}
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
