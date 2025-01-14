@@ -106,6 +106,7 @@ async function processVideoData(feed: any, channelId: string) {
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
@@ -116,34 +117,46 @@ Deno.serve(async (req) => {
       .from('creators')
       .select('channel_id')
     
-    if (fetchError) throw fetchError
+    if (fetchError) {
+      console.error('Error fetching creators:', fetchError)
+      throw fetchError
+    }
     
     console.log(`Found ${creators?.length || 0} creators to process`)
 
+    const errors = []
     for (const creator of creators || []) {
       try {
         const feed = await fetchYouTubeRSS(creator.channel_id)
         await processVideoData(feed, creator.channel_id)
       } catch (error) {
         console.error(`Error processing channel ${creator.channel_id}:`, error)
+        errors.push({ channelId: creator.channel_id, error: error.message })
+        // Continue with other creators even if one fails
         continue
       }
     }
 
+    const response = {
+      message: 'Videos fetched and stored successfully',
+      timestamp: new Date().toISOString(),
+      errors: errors.length > 0 ? errors : undefined
+    }
+
     return new Response(
-      JSON.stringify({ 
-        message: 'Videos fetched and stored successfully',
-        timestamp: new Date().toISOString()
-      }),
+      JSON.stringify(response),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
+        status: errors.length > 0 ? 207 : 200, // Use 207 Multi-Status if some operations failed
       }
     )
   } catch (error) {
     console.error('Error in manual-fetch-videos function:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ 
+        error: error.message,
+        timestamp: new Date().toISOString()
+      }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
