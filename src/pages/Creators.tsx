@@ -10,6 +10,7 @@ interface Creator {
   id: string;
   name: string;
   channel_thumbnail: string;
+  channel_id: string;
 }
 
 const Creators = () => {
@@ -38,26 +39,31 @@ const Creators = () => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (creator: Creator) => {
     try {
-      // First, delete all associated videos
+      console.log("Deleting creator:", creator);
+      
+      // First, delete all associated videos using channel_id
       const { error: videosError } = await supabase
         .from('youtube_videos')
         .delete()
-        .eq('channel_id', id);
+        .eq('channel_id', creator.channel_id);
 
       if (videosError) {
         console.error("Error deleting videos:", videosError);
         throw videosError;
       }
 
-      // Then, delete the creator
+      // Then, delete the creator using id
       const { error: creatorError } = await supabase
         .from('creators')
         .delete()
-        .eq('id', id);
+        .eq('id', creator.id);
 
-      if (creatorError) throw creatorError;
+      if (creatorError) {
+        console.error("Error deleting creator:", creatorError);
+        throw creatorError;
+      }
 
       toast({
         title: "Success",
@@ -97,7 +103,7 @@ const Creators = () => {
                 
                 {/* Delete button that appears on hover */}
                 <button
-                  onClick={() => handleDelete(creator.id)}
+                  onClick={() => handleDelete(creator)}
                   className="absolute top-2 right-2 p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   aria-label="Delete creator"
                 >
