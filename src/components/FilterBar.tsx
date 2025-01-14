@@ -36,6 +36,7 @@ const FilterBar = ({ onDateFilterChange, onCreatorFilterChange, selectedCreator 
           <SelectValue placeholder="Date" />
         </SelectTrigger>
         <SelectContent>
+          <SelectItem value="all">All Videos</SelectItem>
           <SelectItem value="yesterday">Yesterday</SelectItem>
           <SelectItem value="last7days">Last 7 Days</SelectItem>
           <SelectItem value="last15days">Last 15 Days</SelectItem>
