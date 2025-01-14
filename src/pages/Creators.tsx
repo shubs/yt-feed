@@ -43,27 +43,16 @@ const Creators = () => {
     try {
       console.log("Starting deletion process for creator:", creator);
       
-      // First delete all videos for this creator
-      const { error: videosError } = await supabase
-        .from('youtube_videos')
-        .delete()
-        .eq('channel_id', creator.channel_id)
-        .throwOnError();
-
-      if (videosError) throw videosError;
-      
-      console.log("Successfully deleted associated videos");
-
-      // Then delete the creator
-      const { error: creatorError } = await supabase
+      // With CASCADE delete, we only need to delete the creator
+      const { error: deleteError } = await supabase
         .from('creators')
         .delete()
         .eq('id', creator.id)
         .throwOnError();
 
-      if (creatorError) throw creatorError;
+      if (deleteError) throw deleteError;
 
-      console.log("Successfully deleted creator");
+      console.log("Successfully deleted creator and associated videos");
       
       toast({
         title: "Success",
