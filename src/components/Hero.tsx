@@ -1,13 +1,19 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import Button from "./Button";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
-import VideoCard from "./VideoCard";
+import { useState } from "react";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Hero = () => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
   const { data: yesterdayVideos, isLoading } = useQuery({
     queryKey: ['yesterdayVideos'],
     queryFn: async () => {
@@ -57,6 +63,34 @@ const Hero = () => {
     window.open(videoUrl, '_blank');
   };
 
+  const handleManualRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      const response = await supabase.functions.invoke('manual-fetch-videos');
+      if (response.error) throw response.error;
+      
+      // Refetch the queries to update the UI
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['yesterdayVideos'] }),
+        queryClient.invalidateQueries({ queryKey: ['lastUpdateTime'] })
+      ]);
+
+      toast({
+        title: "Success",
+        description: "Videos have been refreshed successfully",
+      });
+    } catch (error) {
+      console.error('Error refreshing videos:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh videos. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
@@ -103,9 +137,21 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="text-sm text-gray-500"
+            className="text-sm text-gray-500 flex items-center gap-2 justify-center"
           >
-            Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}
+            <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
+            <Button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="ml-2 !p-2 h-8"
+              variant="secondary"
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Refresh Now"
+              )}
+            </Button>
           </motion.div>
         )}
 
