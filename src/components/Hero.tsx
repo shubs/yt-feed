@@ -88,7 +88,7 @@ const Hero = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10 pointer-events-none" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -105,12 +105,16 @@ const Hero = () => {
         </motion.h1>
 
         <div className="flex gap-4 justify-center mb-12">
-          <Button asChild variant="default" size="lg" className="w-28 bg-[#ea384c] hover:bg-[#ea384c]/90">
-            <Link to="/feed" className="w-full">Your Feed</Link>
-          </Button>
-          <Button asChild variant="secondary" size="lg" className="w-28">
-            <Link to="/creators" className="w-full">Creators</Link>
-          </Button>
+          <Link to="/feed" className="w-28">
+            <Button className="w-full bg-[#ea384c] hover:bg-[#ea384c]/90" size="lg">
+              Your Feed
+            </Button>
+          </Link>
+          <Link to="/creators" className="w-28">
+            <Button variant="secondary" className="w-full" size="lg">
+              Creators
+            </Button>
+          </Link>
         </div>
 
         {isLoading ? (
