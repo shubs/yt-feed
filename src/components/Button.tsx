@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
@@ -7,16 +8,19 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const Button = ({ children, className, ...props }: ButtonProps) => {
   return (
-    <button
+    <motion.button
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       className={cn(
-        "px-8 py-3 border-2 border-black rounded-full text-lg font-medium",
-        "hover:bg-black hover:text-white transition-colors duration-200",
+        "px-8 py-3 border-2 border-primary rounded-full text-lg font-medium",
+        "bg-gradient-to-r from-purple-600 to-blue-600 text-white",
+        "hover:shadow-lg hover:shadow-primary/20 transition-shadow duration-200",
         className
       )}
       {...props}
     >
       {children}
-    </button>
+    </motion.button>
   );
 };
 
