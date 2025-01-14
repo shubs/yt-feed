@@ -1,7 +1,6 @@
-import { Play, ExternalLink } from "lucide-react";
+import { Play } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { format } from "date-fns";
-import { Button } from "./ui/button";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -22,10 +21,6 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
 
   const handlePlayClick = () => {
     setIsPlaying(true);
-  };
-
-  const handleWatchClick = () => {
-    window.open(videoUrl, '_blank');
   };
 
   return (
@@ -69,17 +64,6 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
           )}
         </div>
         <CardContent className="p-4">
-          <div className="flex items-center justify-end mb-4">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors"
-              onClick={handleWatchClick}
-            >
-              Watch on YouTube
-              <ExternalLink className="w-4 h-4" />
-            </Button>
-          </div>
           <h3 className="text-xl font-bold mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">{title}</h3>
           <p className="text-sm text-gray-600 mb-1 hover:text-primary transition-colors">{channelName}</p>
           <div className="flex justify-between text-sm text-gray-600">
