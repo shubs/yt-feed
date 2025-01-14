@@ -70,15 +70,15 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
         </div>
         <CardContent className="p-3">
           <h3 className="text-base font-medium line-clamp-2 mb-1">{title}</h3>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">{channelName}</p>
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 px-2"
+              className="h-6 px-1.5 -ml-1"
               onClick={handleChannelClick}
             >
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
               <span className="sr-only">Visit channel</span>
             </Button>
           </div>
