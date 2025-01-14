@@ -37,8 +37,13 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
         query = query.gte('published_at', startOfDay(fifteenDaysAgo).toISOString());
       }
 
-      // Always order by published_at in descending order
-      query = query.order('published_at', { ascending: false });
+      // Apply sorting based on filter
+      if (dateFilter === 'oldest') {
+        query = query.order('published_at', { ascending: true });
+      } else {
+        // Default to newest first for all other filters
+        query = query.order('published_at', { ascending: false });
+      }
 
       console.log('Fetching videos with filter:', dateFilter);
       const { data, error } = await query;
