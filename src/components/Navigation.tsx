@@ -1,40 +1,36 @@
-import { Home, PlaySquare, Users } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { Home, PlaySquare, Users } from "lucide-react";
 
 const Navigation = () => {
   const location = useLocation();
+
   const navItems = [
-    { name: "Home", url: "/", icon: Home },
-    { name: "Feed", url: "/feed", icon: PlaySquare },
-    { name: "Creators", url: "/creators", icon: Users },
+    { to: "/", label: "Home", icon: Home },
+    { to: "/feed", label: "Feed", icon: PlaySquare },
+    { to: "/creators", label: "Creators", icon: Users },
   ];
 
   return (
-    <div className="sticky top-0 z-50 w-full bg-background/50 backdrop-blur-lg border-b">
-      <nav className="container flex h-14 max-w-screen-2xl items-center">
-        <div className="flex items-center space-x-6 text-sm font-medium">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location.pathname === item.url;
-
-            return (
-              <Link
-                key={item.name}
-                to={item.url}
-                className={cn(
-                  "flex items-center space-x-2 text-muted-foreground hover:text-accent transition-colors",
-                  isActive && "text-accent"
-                )}
-              >
-                <Icon size={20} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-center h-14">
+          {navItems.map(({ to, label, icon: Icon }) => (
+            <Link
+              key={to}
+              to={to}
+              className={`flex items-center px-6 h-full border-b-2 transition-colors hover:text-accent ${
+                location.pathname === to
+                  ? "border-accent text-accent"
+                  : "border-transparent text-gray-600 hover:border-gray-300"
+              }`}
+            >
+              <Icon className="w-5 h-5 mr-2" />
+              <span className="font-medium">{label}</span>
+            </Link>
+          ))}
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 };
 

@@ -78,7 +78,7 @@ const Creators = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-32">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {creators.map((creator) => (
             <Card key={creator.id} className="aspect-square border border-gray-300 group relative">
