@@ -11,7 +11,7 @@ const Navigation = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200">
+    <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-sm border-b border-gray-200 shadow-sm">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center h-14">
           {navItems.map(({ to, label, icon: Icon }) => (

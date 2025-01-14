@@ -3,9 +3,11 @@ import Hero from "@/components/Hero";
 
 const Index = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-red-100/50 to-white">
       <Navigation />
-      <Hero />
+      <div className="pt-8">
+        <Hero />
+      </div>
     </div>
   );
 };
