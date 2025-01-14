@@ -104,33 +104,27 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl sm:text-7xl font-bold mb-8 max-w-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600"
+          className="text-5xl sm:text-7xl font-bold mb-8 max-w-4xl bg-clip-text text-red-500"
         >
-          Welcome to your YT feed
+          Your Gateway to Inspirational Content
         </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="text-2xl sm:text-3xl mb-12 max-w-2xl text-gray-600"
-        >
-          {isLoading ? (
-            <span>Loading...</span>
-          ) : (
-            <>
-              There were{" "}
-              <motion.span
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.6 }}
-                className="font-bold text-primary"
-              >
-                {yesterdayVideos?.length || 0}
-              </motion.span>{" "}
-              videos posted yesterday
-            </>
-          )}
-        </motion.p>
+
+        {isLoading ? (
+          <span>Loading...</span>
+        ) : (
+          <>
+            There were{" "}
+            <motion.span
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="font-bold text-primary"
+            >
+              {yesterdayVideos?.length || 0}
+            </motion.span>{" "}
+            videos posted yesterday
+          </>
+        )}
 
         {lastUpdateTime && (
           <motion.div
