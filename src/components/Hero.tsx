@@ -1,13 +1,13 @@
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import Button from "./Button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay, subDays } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
+import { Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import VideoList from "./VideoList";
-import StatsDisplay from "./StatsDisplay";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 
 const Hero = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -59,12 +59,17 @@ const Hero = () => {
     refetchInterval: 1000 * 60 * 5 // Refetch every 5 minutes
   });
 
+  const handleVideoClick = (videoUrl: string) => {
+    window.open(videoUrl, '_blank');
+  };
+
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
     try {
       const response = await supabase.functions.invoke('manual-fetch-videos');
       if (response.error) throw response.error;
       
+      // Refetch the queries to update the UI
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['yesterdayVideos'] }),
         queryClient.invalidateQueries({ queryKey: ['lastUpdateTime'] })
@@ -88,7 +93,7 @@ const Hero = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -103,19 +108,6 @@ const Hero = () => {
         >
           Your Gateway to Inspirational Content
         </motion.h1>
-
-        <div className="flex gap-4 justify-center mb-12">
-          <Link to="/feed" className="w-28">
-            <Button className="w-full bg-[#ea384c] hover:bg-[#ea384c]/90" size="lg">
-              Your Feed
-            </Button>
-          </Link>
-          <Link to="/creators" className="w-28">
-            <Button variant="secondary" className="w-full" size="lg">
-              Creators
-            </Button>
-          </Link>
-        </div>
 
         {isLoading ? (
           <span>Loading...</span>
@@ -134,16 +126,90 @@ const Hero = () => {
           </>
         )}
 
-        <StatsDisplay
-          videoCount={yesterdayVideos?.length || 0}
-          lastUpdateTime={lastUpdateTime}
-          isRefreshing={isRefreshing}
-          onRefresh={handleManualRefresh}
-        />
-
-        {yesterdayVideos && yesterdayVideos.length > 0 && (
-          <VideoList videos={yesterdayVideos} />
+        {lastUpdateTime && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-sm text-gray-500 flex items-center gap-2 justify-center"
+          >
+            <span>Last updated video: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
+            <Button
+              onClick={handleManualRefresh}
+              disabled={isRefreshing}
+              className="ml-2 !p-2 h-8 w-8"
+              variant="secondary"
+              title="Refresh videos"
+            >
+              {isRefreshing ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+          </motion.div>
         )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.6 }}
+          className="space-y-8"
+        >
+          <div className="flex gap-4 justify-center">
+            <Link to="/feed">
+              <Button className="hover:scale-105 transition-transform duration-200">
+                Your Feed
+              </Button>
+            </Link>
+            <Link to="/creators">
+              <Button className="hover:scale-105 transition-transform duration-200">
+                Creators
+              </Button>
+            </Link>
+          </div>
+
+          {yesterdayVideos && yesterdayVideos.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="mt-12 w-full max-w-3xl mx-auto"
+            >
+              <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Yesterday's Videos</h2>
+              <div className="space-y-4">
+                {yesterdayVideos.slice(0, 3).map((video) => (
+                  <div 
+                    key={video.id}
+                    className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
+                  >
+                    <div 
+                      className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md cursor-pointer"
+                      onClick={() => handleVideoClick(video.video_url)}
+                    >
+                      <img 
+                        src={video.thumbnail_url} 
+                        alt={video.video_title}
+                        className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                      />
+                    </div>
+                    <div className="flex-grow min-w-0 text-left">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
+                        {video.video_title}
+                      </h3>
+                      <p className="text-sm text-gray-600 mb-1">{video.channel_name}</p>
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <span>{(video.views || 0).toLocaleString()} views</span>
+                        <span>•</span>
+                        <span>{formatInTimeZone(new Date(video.published_at), 'Europe/Paris', 'PPP')}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </motion.div>
       </motion.div>
     </div>
   );
