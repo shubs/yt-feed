@@ -8,7 +8,7 @@ type ButtonBaseProps = {
   variant?: "primary" | "secondary";
 };
 
-type ButtonProps = ButtonBaseProps & HTMLMotionProps<"button">;
+type ButtonProps = ButtonBaseProps & Omit<HTMLMotionProps<"button">, keyof ButtonBaseProps>;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, className, variant = "primary", ...props }, ref) => {

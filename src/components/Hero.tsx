@@ -157,13 +157,13 @@ const Hero = () => {
           className="space-y-8"
         >
           <div className="flex gap-4 justify-center">
-            <Link to="/feed" className="contents">
-              <Button>
+            <Link to="/feed">
+              <Button onClick={() => console.log("Navigating to feed")}>
                 Your Feed
               </Button>
             </Link>
-            <Link to="/creators" className="contents">
-              <Button>
+            <Link to="/creators">
+              <Button onClick={() => console.log("Navigating to creators")}>
                 Creators
               </Button>
             </Link>
