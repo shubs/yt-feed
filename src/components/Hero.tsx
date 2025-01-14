@@ -32,6 +32,10 @@ const Hero = () => {
     }
   });
 
+  const handleVideoClick = (videoUrl: string) => {
+    window.open(videoUrl, '_blank');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
@@ -98,11 +102,14 @@ const Hero = () => {
                     key={video.id}
                     className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
                   >
-                    <div className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md">
+                    <div 
+                      className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md cursor-pointer"
+                      onClick={() => handleVideoClick(video.video_url)}
+                    >
                       <img 
                         src={video.thumbnail_url} 
                         alt={video.video_title}
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                       />
                     </div>
                     <div className="flex-grow min-w-0">
