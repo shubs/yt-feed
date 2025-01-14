@@ -14,7 +14,13 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
     queryFn: async () => {
       let query = supabase
         .from('youtube_videos')
-        .select('*');
+        .select(`
+          *,
+          creators (
+            channel_id,
+            channel_url
+          )
+        `);
 
       // Apply creator filter
       if (creatorFilter !== 'all') {
@@ -74,6 +80,7 @@ const VideoGrid = ({ dateFilter, creatorFilter }: VideoGridProps) => {
           channelName={video.channel_name}
           publishedAt={video.published_at}
           videoUrl={video.video_url}
+          channelUrl={video.creators?.channel_url}
         />
       ))}
     </div>

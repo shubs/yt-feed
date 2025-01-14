@@ -12,14 +12,13 @@ interface VideoCardProps {
   channelName: string;
   publishedAt: string;
   videoUrl: string;
+  channelUrl?: string;
 }
 
-const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl }: VideoCardProps) => {
+const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl, channelUrl }: VideoCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
-  const channelId = videoUrl.split('channel/')[1]?.split('/')[0];
-  const channelUrl = `https://www.youtube.com/channel/${channelId}`;
 
   const handlePlayClick = () => {
     setIsPlaying(true);
@@ -27,7 +26,7 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
 
   const handleChannelClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (channelId) {
+    if (channelUrl) {
       window.open(channelUrl, '_blank');
     }
   };
