@@ -84,6 +84,21 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
     }
   };
 
+  const fetchVideosForNewCreator = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('fetch-youtube-videos');
+      if (error) throw error;
+      console.log('Successfully triggered video fetch for new creator');
+    } catch (error) {
+      console.error('Error fetching videos for new creator:', error);
+      toast({
+        title: "Warning",
+        description: "Creator added but failed to fetch videos. They will be fetched in the next scheduled update.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       console.log("Form submitted:", values);
@@ -98,6 +113,9 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         });
 
       if (error) throw error;
+
+      // Fetch videos immediately after adding the creator
+      await fetchVideosForNewCreator();
 
       toast({
         title: "Success",
