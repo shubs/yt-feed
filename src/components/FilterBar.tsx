@@ -6,11 +6,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const FilterBar = () => {
+interface FilterBarProps {
+  onDateFilterChange: (value: string) => void;
+  onCreatorFilterChange: (value: string) => void;
+}
+
+const FilterBar = ({ onDateFilterChange, onCreatorFilterChange }: FilterBarProps) => {
   return (
     <div className="flex items-center gap-4 mb-8">
       <span className="text-xl font-medium">Filter</span>
-      <Select defaultValue="date">
+      <Select defaultValue="date" onValueChange={onDateFilterChange}>
         <SelectTrigger className="w-[180px] border-2 border-black">
           <SelectValue placeholder="Date" />
         </SelectTrigger>
@@ -20,7 +25,7 @@ const FilterBar = () => {
           <SelectItem value="oldest">Oldest</SelectItem>
         </SelectContent>
       </Select>
-      <Select defaultValue="all">
+      <Select defaultValue="all" onValueChange={onCreatorFilterChange}>
         <SelectTrigger className="w-[180px] border-2 border-black">
           <SelectValue placeholder="Creators" />
         </SelectTrigger>
