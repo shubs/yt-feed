@@ -40,20 +40,31 @@ async function fetchVideoStatistics(videoIds: string[]) {
     throw new Error('YouTube API key not found')
   }
 
-  const videoIdsString = videoIds.join(',')
-  const url = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIdsString}&key=${YOUTUBE_API_KEY}`
-  
-  try {
-    const response = await fetch(url)
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
-    }
-    const data = await response.json()
-    return data.items
-  } catch (error) {
-    console.error('Error fetching video statistics:', error)
-    throw error
+  // Split videoIds into chunks of 50 (YouTube API limit)
+  const chunks = [];
+  for (let i = 0; i < videoIds.length; i += 50) {
+    chunks.push(videoIds.slice(i, i + 50));
   }
+
+  const allStats = [];
+  for (const chunk of chunks) {
+    const videoIdsString = chunk.join(',')
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIdsString}&key=${YOUTUBE_API_KEY}`
+    
+    try {
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      const data = await response.json()
+      allStats.push(...(data.items || []))
+    } catch (error) {
+      console.error('Error fetching video statistics:', error)
+      throw error
+    }
+  }
+
+  return allStats
 }
 
 async function processVideoData(feed: any, channelId: string) {
@@ -71,11 +82,12 @@ async function processVideoData(feed: any, channelId: string) {
   const statistics = await fetchVideoStatistics(videoIds)
   const statsMap = new Map(statistics.map((stat: any) => [stat.id, stat.statistics]))
 
-  for (const entry of entries) {
+  // Prepare all video data before insertion
+  const videosToUpsert = entries.map(entry => {
     const videoId = entry.id.split(':').pop()
     const stats = statsMap.get(videoId) || { viewCount: 0, likeCount: 0 }
     
-    const videoData = {
+    return {
       channel_id: channelId,
       channel_name: channelName,
       video_id: videoId,
@@ -90,19 +102,22 @@ async function processVideoData(feed: any, channelId: string) {
       rating_min: 1,
       rating_max: 5
     }
+  })
 
-    const { error } = await supabase
-      .from('youtube_videos')
-      .upsert(videoData, {
-        onConflict: 'video_id',
-        ignoreDuplicates: false
-      })
+  // Batch upsert all videos
+  const { error } = await supabase
+    .from('youtube_videos')
+    .upsert(videosToUpsert, {
+      onConflict: 'video_id',
+      ignoreDuplicates: false
+    })
 
-    if (error) {
-      console.error('Error inserting video:', error)
-      throw error
-    }
+  if (error) {
+    console.error('Error inserting videos:', error)
+    throw error
   }
+
+  return videosToUpsert.length
 }
 
 Deno.serve(async (req) => {
@@ -113,6 +128,8 @@ Deno.serve(async (req) => {
 
   try {
     console.log('Manual fetch triggered')
+    const startTime = Date.now()
+
     const { data: creators, error: fetchError } = await supabase
       .from('creators')
       .select('channel_id')
@@ -125,21 +142,35 @@ Deno.serve(async (req) => {
     console.log(`Found ${creators?.length || 0} creators to process`)
 
     const errors = []
-    for (const creator of creators || []) {
-      try {
-        const feed = await fetchYouTubeRSS(creator.channel_id)
-        await processVideoData(feed, creator.channel_id)
-      } catch (error) {
-        console.error(`Error processing channel ${creator.channel_id}:`, error)
-        errors.push({ channelId: creator.channel_id, error: error.message })
-        // Continue with other creators even if one fails
-        continue
-      }
+    let totalVideosProcessed = 0
+
+    // Process creators in parallel with a limit of 5 concurrent requests
+    const batchSize = 5
+    for (let i = 0; i < (creators?.length || 0); i += batchSize) {
+      const batch = creators?.slice(i, i + batchSize) || []
+      const promises = batch.map(async (creator) => {
+        try {
+          const feed = await fetchYouTubeRSS(creator.channel_id)
+          const processedCount = await processVideoData(feed, creator.channel_id)
+          if (processedCount) totalVideosProcessed += processedCount
+          return { success: true, channelId: creator.channel_id, count: processedCount }
+        } catch (error) {
+          console.error(`Error processing channel ${creator.channel_id}:`, error)
+          errors.push({ channelId: creator.channel_id, error: error.message })
+          return { success: false, channelId: creator.channel_id, error: error.message }
+        }
+      })
+      await Promise.all(promises)
     }
+
+    const endTime = Date.now()
+    const processingTime = (endTime - startTime) / 1000 // Convert to seconds
 
     const response = {
       message: 'Videos fetched and stored successfully',
       timestamp: new Date().toISOString(),
+      processingTime: `${processingTime.toFixed(2)} seconds`,
+      totalVideosProcessed,
       errors: errors.length > 0 ? errors : undefined
     }
 

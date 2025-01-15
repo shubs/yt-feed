@@ -65,9 +65,14 @@ const Hero = () => {
 
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
+    const startTime = performance.now();
+
     try {
       const response = await supabase.functions.invoke('manual-fetch-videos');
       if (response.error) throw response.error;
+      
+      const endTime = performance.now();
+      const processingTime = ((endTime - startTime) / 1000).toFixed(2);
       
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['yesterdayVideos'] }),
@@ -76,7 +81,7 @@ const Hero = () => {
 
       toast({
         title: "Success",
-        description: "Videos have been refreshed successfully",
+        description: `Videos refreshed in ${processingTime} seconds. ${response.data?.totalVideosProcessed || 0} videos processed.`,
       });
     } catch (error) {
       console.error('Error refreshing videos:', error);
@@ -132,7 +137,7 @@ const Hero = () => {
             transition={{ duration: 0.5 }}
             className="text-sm text-gray-500 flex items-center gap-2 justify-center"
           >
-            <span>Last updated video: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
+            <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
             <Button
               onClick={handleManualRefresh}
               disabled={isRefreshing}
