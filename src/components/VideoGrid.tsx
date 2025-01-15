@@ -32,9 +32,12 @@ const VideoGrid = ({ dateFilter, creatorFilter, customDate }: VideoGridProps) =>
       const now = new Date();
       
       if (dateFilter === 'custom' && customDate) {
+        const start = startOfDay(customDate);
+        const end = endOfDay(customDate);
+        console.log('Filtering for date range:', start, 'to', end);
         query = query
-          .gte('published_at', startOfDay(customDate).toISOString())
-          .lte('published_at', endOfDay(customDate).toISOString());
+          .gte('published_at', start.toISOString())
+          .lte('published_at', end.toISOString());
       } else if (dateFilter === 'yesterday') {
         const yesterday = subDays(now, 1);
         query = query
@@ -74,9 +77,17 @@ const VideoGrid = ({ dateFilter, creatorFilter, customDate }: VideoGridProps) =>
     );
   }
 
+  if (!videos || videos.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-lg text-gray-600">No videos found for this date.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {videos?.map((video) => (
+      {videos.map((video) => (
         <VideoCard
           key={video.id}
           title={video.video_title}
