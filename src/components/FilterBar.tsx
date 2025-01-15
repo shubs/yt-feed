@@ -29,7 +29,7 @@ const FilterBar = ({ onDateFilterChange, onCreatorFilterChange, selectedCreator 
   });
 
   return (
-    <div className="flex items-center gap-4 mb-8">
+    <div className="flex items-center gap-4">
       <span className="text-xl font-medium">Filter</span>
       <Select defaultValue="newest" onValueChange={onDateFilterChange}>
         <SelectTrigger className="w-[180px] border-2 border-black">

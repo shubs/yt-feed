@@ -48,7 +48,7 @@ const Feed = () => {
     <div className="min-h-screen">
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 gap-4">
           <FilterBar
             onDateFilterChange={setDateFilter}
             onCreatorFilterChange={setCreatorFilter}
@@ -57,9 +57,9 @@ const Feed = () => {
           <Button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
-            className="ml-4 h-10"
             variant="outline"
             title="Refresh videos"
+            className="shrink-0 h-10 whitespace-nowrap"
           >
             {isRefreshing ? (
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
