@@ -69,7 +69,6 @@ const Hero = () => {
       const response = await supabase.functions.invoke('manual-fetch-videos');
       if (response.error) throw response.error;
       
-      // Refetch the queries to update the UI
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['yesterdayVideos'] }),
         queryClient.invalidateQueries({ queryKey: ['lastUpdateTime'] })
@@ -178,7 +177,7 @@ const Hero = () => {
             >
               <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Yesterday's Videos</h2>
               <div className="space-y-4">
-                {yesterdayVideos.slice(0, 3).map((video) => (
+                {yesterdayVideos.map((video) => (
                   <div 
                     key={video.id}
                     className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
