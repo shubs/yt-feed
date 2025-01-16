@@ -19,12 +19,14 @@ interface VideoCardProps {
 }
 
 const formatSubscriberCount = (count: number): string => {
-  if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M subscribers`;
-  } else if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K subscribers`;
+  switch (true) {
+    case count >= 1000000:
+      return `${(count / 1000000).toFixed(1)}M subscribers`;
+    case count >= 1000:
+      return `${(count / 1000).toFixed(1)}K subscribers`;
+    default:
+      return `${count} subscribers`;
   }
-  return `${count} subscribers`;
 };
 
 const VideoCard = ({ 
@@ -110,13 +112,13 @@ const VideoCard = ({
                 <span className="sr-only">Visit channel</span>
               </Button>
             </div>
-            <div className="flex flex-col gap-0.5 text-sm text-muted-foreground mt-1">
-              <div className="flex items-center gap-1">
+            <div className="flex flex-col gap-0.5 text-sm mt-1">
+              <div className="flex items-center gap-1 text-black font-bold">
                 <span>{views.toLocaleString()} views</span>
                 <span>•</span>
                 <span>{formatDistanceToNow(new Date(publishedAt), { addSuffix: true })}</span>
               </div>
-              <span className="text-xs">
+              <span className="text-xs text-black font-bold">
                 {formatInTimeZone(new Date(publishedAt), 'Europe/Paris', 'PPP')}
               </span>
             </div>
@@ -181,13 +183,13 @@ const VideoCard = ({
             <span className="sr-only">Visit channel</span>
           </Button>
         </div>
-        <div className="flex flex-col gap-0.5 text-sm text-muted-foreground mt-1">
-          <div className="flex items-center gap-1">
+        <div className="flex flex-col gap-0.5 text-sm mt-1">
+          <div className="flex items-center gap-1 text-black font-bold">
             <span>{views.toLocaleString()} views</span>
             <span>•</span>
             <span>{formatDistanceToNow(new Date(publishedAt), { addSuffix: true })}</span>
           </div>
-          <span className="text-xs">
+          <span className="text-xs text-black font-bold">
             {formatInTimeZone(new Date(publishedAt), 'Europe/Paris', 'PPP')}
           </span>
         </div>
