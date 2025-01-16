@@ -121,9 +121,9 @@ const Hero = () => {
         </motion.h1>
 
         {isLoading ? (
-          <span>Loading...</span>
+          <span className="font-bold text-[#000000]">Loading...</span>
         ) : (
-          <div>
+          <div className="font-bold text-[#000000]">
             There are{" "}
             <motion.span
               initial={{ opacity: 0, scale: 0.5 }}
@@ -142,7 +142,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="text-sm text-gray-500 flex items-center gap-2"
+            className="text-sm text-[#000000] flex items-center gap-2 font-bold"
           >
             <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
             <Button
@@ -187,7 +187,7 @@ const Hero = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="mt-12 w-full"
             >
-              <h2 className="text-2xl font-bold mb-4 text-gray-800">Today's Videos</h2>
+              <h2 className="text-2xl font-bold mb-4 text-[#000000]">Today's Videos</h2>
               <div className="space-y-2 divide-y divide-gray-100">
                 {todayVideos.map((video) => (
                   <div key={video.id} className="pt-2 first:pt-0">
