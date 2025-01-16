@@ -93,6 +93,16 @@ const Creators = () => {
       <Navigation />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <Card 
+            className="aspect-square border border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
+            onClick={() => setDialogOpen(true)}
+          >
+            <CardContent className="p-4 h-full flex flex-col items-center justify-center gap-2">
+              <Plus className="w-8 h-8" />
+              <span className="font-medium">Add New</span>
+            </CardContent>
+          </Card>
+
           {creators.map((creator) => (
             <Card key={creator.id} className="aspect-square border border-gray-300 group relative">
               <CardContent className="p-4 h-full flex flex-col items-center justify-center gap-2">
@@ -125,16 +135,6 @@ const Creators = () => {
               </CardContent>
             </Card>
           ))}
-
-          <Card 
-            className="aspect-square border border-gray-300 cursor-pointer hover:border-gray-400 transition-colors"
-            onClick={() => setDialogOpen(true)}
-          >
-            <CardContent className="p-4 h-full flex flex-col items-center justify-center gap-2">
-              <Plus className="w-8 h-8" />
-              <span className="font-medium">Add New</span>
-            </CardContent>
-          </Card>
         </div>
       </main>
       
