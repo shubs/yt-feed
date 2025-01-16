@@ -6,11 +6,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay, formatDistanceToNow } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const Hero = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isUpdatingSubscribers, setIsUpdatingSubscribers] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
@@ -102,6 +103,30 @@ const Hero = () => {
     }
   };
 
+  const handleUpdateSubscribers = async () => {
+    setIsUpdatingSubscribers(true);
+    try {
+      const response = await supabase.functions.invoke('update-subscribers');
+      if (response.error) throw response.error;
+      
+      await queryClient.invalidateQueries({ queryKey: ['todayVideos'] });
+      
+      toast({
+        title: "Success",
+        description: "Creator subscriber counts have been updated.",
+      });
+    } catch (error) {
+      console.error('Error updating subscribers:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update subscriber counts. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingSubscribers(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
@@ -145,19 +170,34 @@ const Hero = () => {
             className="text-sm text-gray-500 flex items-center gap-2 justify-center"
           >
             <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
-            <Button
-              onClick={handleManualRefresh}
-              disabled={isRefreshing}
-              className="ml-2 !p-2 h-8 w-8"
-              variant="secondary"
-              title="Refresh videos"
-            >
-              {isRefreshing ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="h-4 w-4" />
-              )}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleManualRefresh}
+                disabled={isRefreshing}
+                className="!p-2 h-8 w-8"
+                variant="secondary"
+                title="Refresh videos"
+              >
+                {isRefreshing ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
+              </Button>
+              <Button
+                onClick={handleUpdateSubscribers}
+                disabled={isUpdatingSubscribers}
+                className="!p-2 h-8 w-8"
+                variant="secondary"
+                title="Update subscriber counts"
+              >
+                {isUpdatingSubscribers ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Users className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
           </motion.div>
         )}
 
