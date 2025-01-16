@@ -51,6 +51,40 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
     },
   });
 
+  const fetchVideos = async () => {
+    try {
+      console.log("Fetching videos...");
+      const { data, error } = await supabase.functions.invoke('fetch-youtube-videos');
+      
+      if (error) {
+        console.error("Error fetching videos:", error);
+        throw error;
+      }
+      
+      console.log("Videos fetched successfully:", data);
+      return data;
+    } catch (error) {
+      console.error("Error in fetchVideos:", error);
+      throw error;
+    }
+  };
+
+  const updateSubscriberCount = async (channelId: string) => {
+    try {
+      console.log("Updating subscriber count for channel:", channelId);
+      const { data, error } = await supabase.functions.invoke('update-subscribers', {
+        body: { channelId }
+      });
+      
+      if (error) throw error;
+      console.log("Subscriber count updated:", data);
+      return data;
+    } catch (error) {
+      console.error("Error updating subscriber count:", error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
@@ -66,9 +100,9 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         return;
       }
 
-      // Call our optimized Edge Function
+      // Call our Edge Function to get channel details
       const { data: channelDetails, error: functionError } = await supabase.functions.invoke(
-        'add-youtube-channel',
+        'youtube-channel',
         {
           body: { channelHandle }
         }
@@ -100,13 +134,12 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         return;
       }
 
-      // Insert the new creator with subscriber count
+      // Insert the new creator
       const { error: insertError } = await supabase.from("creators").insert({
         name: channelDetails.snippet.title,
         channel_url: `https://youtube.com/channel/${channelDetails.id}`,
         channel_id: channelDetails.id,
         channel_thumbnail: channelDetails.snippet.thumbnails.default.url,
-        subscribers_count: parseInt(channelDetails.statistics.subscriberCount),
       });
 
       if (insertError) {
@@ -119,14 +152,15 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         return;
       }
 
-      // Trigger video fetch asynchronously
-      supabase.functions.invoke('fetch-youtube-videos')
-        .then(() => console.log("Videos fetch triggered"))
-        .catch(error => console.error("Error triggering videos fetch:", error));
+      // Update subscriber count for the new creator
+      await updateSubscriberCount(channelDetails.id);
+
+      // Fetch videos for the newly added creator
+      await fetchVideos();
 
       toast({
         title: "Success",
-        description: "Creator added successfully",
+        description: "Creator added and videos fetched successfully",
       });
 
       form.reset();
