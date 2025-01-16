@@ -53,9 +53,9 @@ const VideoStats = ({ videoCount, isLoading, lastUpdateTime }: VideoStatsProps) 
   return (
     <>
       {isLoading ? (
-        <span>Loading...</span>
+        <span className="text-center block">Loading...</span>
       ) : (
-        <div>
+        <div className="text-center">
           There are{" "}
           <motion.span
             initial={{ opacity: 0, scale: 0.5 }}
@@ -74,7 +74,7 @@ const VideoStats = ({ videoCount, isLoading, lastUpdateTime }: VideoStatsProps) 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="text-sm text-gray-500 flex items-center gap-2"
+          className="text-sm text-gray-500 flex items-center justify-center gap-2 mt-2"
         >
           <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
           <Button
