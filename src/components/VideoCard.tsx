@@ -90,7 +90,7 @@ const VideoCard = ({
             )}
           </div>
           <div className="flex-1 min-w-0 py-2">
-            <h3 className="text-base font-medium line-clamp-2 mb-1">{title}</h3>
+            <h3 className="text-base font-medium line-clamp-2 mb-1 text-left">{title}</h3>
             <div className="flex items-center gap-2">
               <p className="text-sm text-muted-foreground hover:text-foreground transition-colors truncate">
                 {channelName}
