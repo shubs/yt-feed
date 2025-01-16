@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { startOfDay, endOfDay } from "date-fns";
+import { motion } from "framer-motion"; // Added this import
 import HeroHeader from "./hero/HeroHeader";
 import VideoStats from "./hero/VideoStats";
 import NavigationButtons from "./hero/NavigationButtons";
