@@ -29,25 +29,67 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { channelId } = await req.json()
-    console.log('Updating subscriber count for channel:', channelId)
+    // If a specific channelId is provided, update only that channel
+    const body = await req.json().catch(() => ({}))
+    
+    if (body.channelId) {
+      console.log('Updating subscriber count for channel:', body.channelId)
+      const subscriberCount = await updateSubscriberCount(body.channelId)
+      console.log('Fetched subscriber count:', subscriberCount)
 
-    if (!channelId) {
-      throw new Error('Channel ID is required')
+      const { error } = await supabase
+        .from('creators')
+        .update({ subscribers_count: subscriberCount })
+        .eq('channel_id', body.channelId)
+
+      if (error) throw error
+
+      return new Response(
+        JSON.stringify({ subscriberCount }),
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        },
+      )
     }
 
-    const subscriberCount = await updateSubscriberCount(channelId)
-    console.log('Fetched subscriber count:', subscriberCount)
-
-    const { error } = await supabase
+    // If no channelId provided, update all creators
+    console.log('Updating subscriber counts for all creators')
+    const { data: creators, error: fetchError } = await supabase
       .from('creators')
-      .update({ subscribers_count: subscriberCount })
-      .eq('channel_id', channelId)
+      .select('channel_id')
 
-    if (error) throw error
+    if (fetchError) throw fetchError
+
+    const results = await Promise.all(
+      creators!.map(async (creator) => {
+        try {
+          const subscriberCount = await updateSubscriberCount(creator.channel_id)
+          const { error } = await supabase
+            .from('creators')
+            .update({ subscribers_count: subscriberCount })
+            .eq('channel_id', creator.channel_id)
+
+          if (error) throw error
+
+          return {
+            channelId: creator.channel_id,
+            subscriberCount,
+            status: 'success'
+          }
+        } catch (error) {
+          console.error(`Error updating ${creator.channel_id}:`, error)
+          return {
+            channelId: creator.channel_id,
+            error: error.message,
+            status: 'error'
+          }
+        }
+      })
+    )
 
     return new Response(
-      JSON.stringify({ subscriberCount }),
+      JSON.stringify({ results }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
