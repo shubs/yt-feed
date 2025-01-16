@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Button from "./Button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay, subDays } from "date-fns";
+import { startOfDay, endOfDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -14,13 +14,13 @@ const Hero = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const { data: yesterdayVideos, isLoading } = useQuery({
-    queryKey: ['yesterdayVideos'],
+  const { data: todayVideos, isLoading } = useQuery({
+    queryKey: ['todayVideos'],
     queryFn: async () => {
-      console.log('Fetching yesterday videos');
-      const yesterday = subDays(new Date(), 1);
-      const start = startOfDay(yesterday);
-      const end = endOfDay(yesterday);
+      console.log('Fetching today videos');
+      const today = new Date();
+      const start = startOfDay(today);
+      const end = endOfDay(today);
       
       const { data, error } = await supabase
         .from('youtube_videos')
@@ -30,11 +30,11 @@ const Hero = () => {
         .order('published_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching yesterday videos:', error);
+        console.error('Error fetching today videos:', error);
         throw error;
       }
       
-      console.log('Yesterday videos:', data);
+      console.log('Today videos:', data);
       return data || [];
     }
   });
@@ -75,7 +75,7 @@ const Hero = () => {
       const processingTime = ((endTime - startTime) / 1000).toFixed(2);
       
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['yesterdayVideos'] }),
+        queryClient.invalidateQueries({ queryKey: ['todayVideos'] }),
         queryClient.invalidateQueries({ queryKey: ['lastUpdateTime'] })
       ]);
 
@@ -117,16 +117,16 @@ const Hero = () => {
           <span>Loading...</span>
         ) : (
           <>
-            There were{" "}
+            There are{" "}
             <motion.span
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
               className="font-bold text-primary"
             >
-              {yesterdayVideos?.length || 0}
+              {todayVideos?.length || 0}
             </motion.span>{" "}
-            videos posted yesterday
+            videos posted today
           </>
         )}
 
@@ -173,16 +173,16 @@ const Hero = () => {
             </Link>
           </div>
 
-          {yesterdayVideos && yesterdayVideos.length > 0 && (
+          {todayVideos && todayVideos.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               className="mt-12 w-full max-w-3xl mx-auto"
             >
-              <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Yesterday's Videos</h2>
+              <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Today's Videos</h2>
               <div className="space-y-4">
-                {yesterdayVideos.map((video) => (
+                {todayVideos.map((video) => (
                   <div 
                     key={video.id}
                     className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
