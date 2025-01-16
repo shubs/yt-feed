@@ -2,8 +2,6 @@ import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import VideoGrid from "@/components/VideoGrid";
 import FilterBar from "@/components/FilterBar";
-import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
@@ -37,34 +35,40 @@ const Feed = () => {
     updateSubscribers();
   }, []); // Run once when component mounts
 
-  const handleManualRefresh = async () => {
-    setIsRefreshing(true);
-    const startTime = performance.now();
+  // New effect to automatically refresh videos when component mounts
+  useEffect(() => {
+    const refreshVideos = async () => {
+      console.log('Automatically refreshing videos...');
+      setIsRefreshing(true);
+      const startTime = performance.now();
 
-    try {
-      const response = await supabase.functions.invoke('manual-fetch-videos');
-      if (response.error) throw response.error;
-      
-      const endTime = performance.now();
-      const processingTime = ((endTime - startTime) / 1000).toFixed(2);
-      
-      await queryClient.invalidateQueries();
+      try {
+        const response = await supabase.functions.invoke('manual-fetch-videos');
+        if (response.error) throw response.error;
+        
+        const endTime = performance.now();
+        const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+        
+        await queryClient.invalidateQueries();
 
-      toast({
-        title: "Success",
-        description: `Videos refreshed in ${processingTime} seconds. ${response.data?.totalVideosProcessed || 0} videos processed.`,
-      });
-    } catch (error) {
-      console.error('Error refreshing videos:', error);
-      toast({
-        title: "Error",
-        description: "Failed to refresh videos. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+        toast({
+          title: "Success",
+          description: `Videos refreshed in ${processingTime} seconds. ${response.data?.totalVideosProcessed || 0} videos processed.`,
+        });
+      } catch (error) {
+        console.error('Error refreshing videos:', error);
+        toast({
+          title: "Error",
+          description: "Failed to refresh videos. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsRefreshing(false);
+      }
+    };
+
+    refreshVideos();
+  }, []); // Run once when component mounts
 
   return (
     <div className="min-h-screen">
@@ -76,20 +80,6 @@ const Feed = () => {
             onCreatorFilterChange={setCreatorFilter}
             selectedCreator={creatorFilter}
           />
-          <Button
-            onClick={handleManualRefresh}
-            disabled={isRefreshing}
-            variant="outline"
-            title="Refresh videos"
-            className="shrink-0 h-10 whitespace-nowrap"
-          >
-            {isRefreshing ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <RefreshCw className="h-4 w-4 mr-2" />
-            )}
-            Refresh
-          </Button>
         </div>
         <VideoGrid dateFilter={dateFilter} creatorFilter={creatorFilter} />
       </main>
