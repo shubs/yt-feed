@@ -1,6 +1,7 @@
 import { Play, ExternalLink } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { formatInTimeZone } from "date-fns-tz";
+import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Button } from "./ui/button";
@@ -84,10 +85,15 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
               <span className="sr-only">Visit channel</span>
             </Button>
           </div>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-            <span>{views.toLocaleString()} views</span>
-            <span>•</span>
-            <span>{formatInTimeZone(new Date(publishedAt), 'Europe/Paris', 'PPP')}</span>
+          <div className="flex flex-col gap-0.5 text-sm text-muted-foreground mt-1">
+            <div className="flex items-center gap-1">
+              <span>{views.toLocaleString()} views</span>
+              <span>•</span>
+              <span>{formatDistanceToNow(new Date(publishedAt), { addSuffix: true })}</span>
+            </div>
+            <span className="text-xs">
+              {formatInTimeZone(new Date(publishedAt), 'Europe/Paris', 'PPP')}
+            </span>
           </div>
         </CardContent>
       </Card>
