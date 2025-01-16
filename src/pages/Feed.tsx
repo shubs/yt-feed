@@ -29,8 +29,39 @@ const Feed = () => {
     }
   };
 
+  const refreshVideos = async () => {
+    console.log('Automatically refreshing videos...');
+    setIsRefreshing(true);
+    const startTime = performance.now();
+
+    try {
+      const response = await supabase.functions.invoke('manual-fetch-videos');
+      if (response.error) throw response.error;
+      
+      const endTime = performance.now();
+      const processingTime = ((endTime - startTime) / 1000).toFixed(2);
+      
+      await queryClient.invalidateQueries();
+
+      toast({
+        title: "Success",
+        description: `Videos refreshed in ${processingTime} seconds. ${response.data?.totalVideosProcessed || 0} videos processed.`,
+      });
+    } catch (error) {
+      console.error('Error refreshing videos:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh videos. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
   useEffect(() => {
     updateSubscriberCounts();
+    refreshVideos();
   }, []); // Run once when component mounts
 
   return (
