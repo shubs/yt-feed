@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import Button from "./Button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay, formatDistanceToNow } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -202,10 +202,15 @@ const Hero = () => {
                         {video.video_title}
                       </h3>
                       <p className="text-sm text-gray-600 mb-1">{video.channel_name}</p>
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <span>{(video.views || 0).toLocaleString()} views</span>
-                        <span>•</span>
-                        <span>{formatInTimeZone(new Date(video.published_at), 'Europe/Paris', 'PPP')}</span>
+                      <div className="flex flex-col gap-0.5 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <span>{(video.views || 0).toLocaleString()} views</span>
+                          <span>•</span>
+                          <span>{formatDistanceToNow(new Date(video.published_at), { addSuffix: true })}</span>
+                        </div>
+                        <span className="text-xs">
+                          {formatInTimeZone(new Date(video.published_at), 'Europe/Paris', 'PPP')}
+                        </span>
                       </div>
                     </div>
                   </div>
