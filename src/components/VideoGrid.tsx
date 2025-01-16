@@ -19,7 +19,8 @@ const VideoGrid = ({ dateFilter, creatorFilter, customDate }: VideoGridProps) =>
           *,
           creators (
             channel_id,
-            channel_url
+            channel_url,
+            subscribers_count
           )
         `);
 
@@ -97,6 +98,7 @@ const VideoGrid = ({ dateFilter, creatorFilter, customDate }: VideoGridProps) =>
           publishedAt={video.published_at}
           videoUrl={video.video_url}
           channelUrl={video.creators?.channel_url}
+          subscribersCount={video.creators?.subscribers_count || 0}
         />
       ))}
     </div>

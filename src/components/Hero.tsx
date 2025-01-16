@@ -24,7 +24,14 @@ const Hero = () => {
       
       const { data, error } = await supabase
         .from('youtube_videos')
-        .select('*')
+        .select(`
+          *,
+          creators (
+            channel_id,
+            channel_url,
+            subscribers_count
+          )
+        `)
         .gte('published_at', start.toISOString())
         .lte('published_at', end.toISOString())
         .order('published_at', { ascending: false });
@@ -201,8 +208,15 @@ const Hero = () => {
                       <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
                         {video.video_title}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-1">{video.channel_name}</p>
-                      <div className="flex flex-col gap-0.5 text-sm text-gray-600">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-600">{video.channel_name}</p>
+                        {video.creators?.subscribers_count > 0 && (
+                          <span className="text-xs text-gray-500">
+                            • {formatSubscribers(video.creators.subscribers_count)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-0.5 text-sm text-gray-600 mt-1">
                         <div className="flex items-center gap-1">
                           <span>{(video.views || 0).toLocaleString()} views</span>
                           <span>•</span>
@@ -222,6 +236,15 @@ const Hero = () => {
       </motion.div>
     </div>
   );
+};
+
+const formatSubscribers = (count: number) => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M subscribers`;
+  } else if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K subscribers`;
+  }
+  return `${count} subscribers`;
 };
 
 export default Hero;
