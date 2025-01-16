@@ -103,7 +103,7 @@ const Hero = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-4 relative overflow-hidden">
+    <div className="flex flex-col min-h-[80vh] px-4 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-blue-500/10 -z-10" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -115,7 +115,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl sm:text-7xl font-bold mb-8 max-w-4xl bg-clip-text text-red-500"
+          className="text-5xl sm:text-7xl font-bold mb-8 text-red-500"
         >
           Your Gateway to Inspirational Content
         </motion.h1>
@@ -123,7 +123,7 @@ const Hero = () => {
         {isLoading ? (
           <span>Loading...</span>
         ) : (
-          <>
+          <div>
             There are{" "}
             <motion.span
               initial={{ opacity: 0, scale: 0.5 }}
@@ -134,7 +134,7 @@ const Hero = () => {
               {todayVideos?.length || 0}
             </motion.span>{" "}
             videos posted today
-          </>
+          </div>
         )}
 
         {lastUpdateTime && (
@@ -142,7 +142,7 @@ const Hero = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="text-sm text-gray-500 flex items-center gap-2 justify-center"
+            className="text-sm text-gray-500 flex items-center gap-2"
           >
             <span>Last updated: {formatInTimeZone(new Date(lastUpdateTime), 'Europe/Paris', 'PPP p')}</span>
             <Button
@@ -167,7 +167,7 @@ const Hero = () => {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="space-y-8"
         >
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-4">
             <Link to="/feed">
               <Button className="hover:scale-105 transition-transform duration-200">
                 Your Feed
@@ -185,9 +185,9 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="mt-12 w-full mx-auto"
+              className="mt-12 w-full"
             >
-              <h2 className="text-2xl font-bold mb-4 text-left text-gray-800">Today's Videos</h2>
+              <h2 className="text-2xl font-bold mb-4 text-gray-800">Today's Videos</h2>
               <div className="space-y-2 divide-y divide-gray-100">
                 {todayVideos.map((video) => (
                   <div key={video.id} className="pt-2 first:pt-0">
