@@ -13,61 +13,24 @@ const Feed = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
+  const updateSubscriberCounts = async () => {
+    console.log('Automatically updating subscriber counts...');
+    try {
+      const response = await supabase.functions.invoke('update-subscribers');
+      if (response.error) throw response.error;
+
+      const successCount = response.data.results.filter(r => r.status === 'success').length;
+      const errorCount = response.data.results.filter(r => r.status === 'error').length;
+
+      console.log(`Updated ${successCount} creators successfully${errorCount > 0 ? `. ${errorCount} failed` : ''}.`);
+      await queryClient.invalidateQueries();
+    } catch (error) {
+      console.error('Error updating subscriber counts:', error);
+    }
+  };
+
   useEffect(() => {
-    const updateSubscribers = async () => {
-      try {
-        console.log('Automatically updating subscriber counts...');
-        const { data, error } = await supabase.functions.invoke('update-subscribers');
-        
-        if (error) throw error;
-
-        const successCount = data.results.filter(r => r.status === 'success').length;
-        const errorCount = data.results.filter(r => r.status === 'error').length;
-
-        await queryClient.invalidateQueries();
-
-        console.log(`Updated ${successCount} creators successfully${errorCount > 0 ? `. ${errorCount} failed` : ''}.`);
-      } catch (error) {
-        console.error('Error updating subscriber counts:', error);
-      }
-    };
-
-    updateSubscribers();
-  }, []); // Run once when component mounts
-
-  // New effect to automatically refresh videos when component mounts
-  useEffect(() => {
-    const refreshVideos = async () => {
-      console.log('Automatically refreshing videos...');
-      setIsRefreshing(true);
-      const startTime = performance.now();
-
-      try {
-        const response = await supabase.functions.invoke('manual-fetch-videos');
-        if (response.error) throw response.error;
-        
-        const endTime = performance.now();
-        const processingTime = ((endTime - startTime) / 1000).toFixed(2);
-        
-        await queryClient.invalidateQueries();
-
-        toast({
-          title: "Success",
-          description: `Videos refreshed in ${processingTime} seconds. ${response.data?.totalVideosProcessed || 0} videos processed.`,
-        });
-      } catch (error) {
-        console.error('Error refreshing videos:', error);
-        toast({
-          title: "Error",
-          description: "Failed to refresh videos. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsRefreshing(false);
-      }
-    };
-
-    refreshVideos();
+    updateSubscriberCounts();
   }, []); // Run once when component mounts
 
   return (

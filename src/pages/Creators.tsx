@@ -29,6 +29,22 @@ const Creators = () => {
   const [creators, setCreators] = useState<Creator[]>([]);
   const { toast } = useToast();
   
+  const updateSubscriberCounts = async () => {
+    console.log('Automatically updating subscriber counts...');
+    try {
+      const response = await supabase.functions.invoke('update-subscribers');
+      if (response.error) throw response.error;
+
+      const successCount = response.data.results.filter(r => r.status === 'success').length;
+      const errorCount = response.data.results.filter(r => r.status === 'error').length;
+
+      console.log(`Updated ${successCount} creators successfully${errorCount > 0 ? `. ${errorCount} failed` : ''}.`);
+      await fetchCreators(); // Refresh the creators list after updating
+    } catch (error) {
+      console.error('Error updating subscriber counts:', error);
+    }
+  };
+
   const fetchCreators = async () => {
     try {
       const { data, error } = await supabase
@@ -86,6 +102,7 @@ const Creators = () => {
 
   useEffect(() => {
     fetchCreators();
+    updateSubscriberCounts();
   }, []);
 
   return (
