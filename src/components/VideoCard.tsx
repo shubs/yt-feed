@@ -14,9 +14,28 @@ interface VideoCardProps {
   publishedAt: string;
   videoUrl: string;
   channelUrl?: string;
+  subscriberCount?: number;
 }
 
-const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl, channelUrl }: VideoCardProps) => {
+const formatSubscriberCount = (count: number): string => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M subscribers`;
+  } else if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K subscribers`;
+  }
+  return `${count} subscribers`;
+};
+
+const VideoCard = ({ 
+  title, 
+  views, 
+  thumbnail, 
+  channelName, 
+  publishedAt, 
+  videoUrl, 
+  channelUrl,
+  subscriberCount 
+}: VideoCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
@@ -74,7 +93,14 @@ const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl
         <CardContent className="p-3 text-left">
           <h3 className="text-base font-medium line-clamp-2 mb-1">{title}</h3>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">{channelName}</p>
+            <p className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              {channelName}
+              {subscriberCount !== undefined && (
+                <span className="text-xs text-muted-foreground ml-1">
+                  • {formatSubscriberCount(subscriberCount)}
+                </span>
+              )}
+            </p>
             <Button
               variant="ghost"
               size="sm"

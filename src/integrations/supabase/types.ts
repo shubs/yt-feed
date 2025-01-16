@@ -17,6 +17,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          subscribers_count: number | null
         }
         Insert: {
           channel_id: string
@@ -25,6 +26,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          subscribers_count?: number | null
         }
         Update: {
           channel_id?: string
@@ -33,6 +35,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          subscribers_count?: number | null
         }
         Relationships: []
       }

@@ -69,6 +69,22 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
     }
   };
 
+  const updateSubscriberCount = async (channelId: string) => {
+    try {
+      console.log("Updating subscriber count for channel:", channelId);
+      const { data, error } = await supabase.functions.invoke('update-subscribers', {
+        body: { channelId }
+      });
+      
+      if (error) throw error;
+      console.log("Subscriber count updated:", data);
+      return data;
+    } catch (error) {
+      console.error("Error updating subscriber count:", error);
+      throw error;
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
@@ -135,6 +151,9 @@ const AddCreatorDialog = ({ open, onOpenChange, onCreatorAdded }: AddCreatorDial
         });
         return;
       }
+
+      // Update subscriber count for the new creator
+      await updateSubscriberCount(channelDetails.id);
 
       // Fetch videos for the newly added creator
       await fetchVideos();
