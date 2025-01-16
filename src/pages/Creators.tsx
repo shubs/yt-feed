@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Link2 } from "lucide-react";
 import AddCreatorDialog from "@/components/AddCreatorDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,18 @@ interface Creator {
   name: string;
   channel_thumbnail: string;
   channel_id: string;
+  channel_url: string;
+  subscribers_count: number;
 }
+
+const formatSubscriberCount = (count: number): string => {
+  if (count >= 1000000) {
+    return `${(count / 1000000).toFixed(1)}M subscribers`;
+  } else if (count >= 1000) {
+    return `${(count / 1000).toFixed(1)}K subscribers`;
+  }
+  return `${count} subscribers`;
+};
 
 const Creators = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -43,7 +54,6 @@ const Creators = () => {
     try {
       console.log("Starting deletion process for creator:", creator);
       
-      // With CASCADE delete, we only need to delete the creator
       const { error: deleteError } = await supabase
         .from('creators')
         .delete()
@@ -59,7 +69,6 @@ const Creators = () => {
         description: "Creator and associated videos deleted successfully",
       });
       
-      // Refresh the creators list
       await fetchCreators();
     } catch (error) {
       console.error("Error in delete operation:", error);
@@ -69,6 +78,10 @@ const Creators = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleChannelClick = (url: string) => {
+    window.open(url, '_blank');
   };
 
   useEffect(() => {
@@ -89,8 +102,19 @@ const Creators = () => {
                   className="w-20 h-20 rounded-full mb-2"
                 />
                 <span className="font-medium text-center">{creator.name}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground text-center">
+                    {formatSubscriberCount(creator.subscribers_count || 0)}
+                  </span>
+                  <button
+                    onClick={() => handleChannelClick(creator.channel_url)}
+                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                    aria-label="Visit channel"
+                  >
+                    <Link2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
                 
-                {/* Delete button that appears on hover */}
                 <button
                   onClick={() => handleDelete(creator)}
                   className="absolute top-2 right-2 p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
