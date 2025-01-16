@@ -14,19 +14,9 @@ interface VideoCardProps {
   publishedAt: string;
   videoUrl: string;
   channelUrl?: string;
-  subscribersCount?: number;
 }
 
-const VideoCard = ({ 
-  title, 
-  views, 
-  thumbnail, 
-  channelName, 
-  publishedAt, 
-  videoUrl, 
-  channelUrl,
-  subscribersCount = 0
-}: VideoCardProps) => {
+const VideoCard = ({ title, views, thumbnail, channelName, publishedAt, videoUrl, channelUrl }: VideoCardProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   
   const videoId = videoUrl.split('v=')[1]?.split('&')[0];
@@ -40,15 +30,6 @@ const VideoCard = ({
     if (channelUrl) {
       window.open(channelUrl, '_blank');
     }
-  };
-
-  const formatSubscribers = (count: number) => {
-    if (count >= 1000000) {
-      return `${(count / 1000000).toFixed(1)}M subscribers`;
-    } else if (count >= 1000) {
-      return `${(count / 1000).toFixed(1)}K subscribers`;
-    }
-    return `${count} subscribers`;
   };
 
   return (
@@ -104,11 +85,6 @@ const VideoCard = ({
               <span className="sr-only">Visit channel</span>
             </Button>
           </div>
-          {subscribersCount > 0 && (
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {formatSubscribers(subscribersCount)}
-            </p>
-          )}
           <div className="flex flex-col gap-0.5 text-sm text-muted-foreground mt-1">
             <div className="flex items-center gap-1">
               <span>{views.toLocaleString()} views</span>
