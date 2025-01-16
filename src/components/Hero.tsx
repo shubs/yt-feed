@@ -109,7 +109,7 @@ const Hero = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="space-y-8"
+        className="space-y-8 w-full max-w-4xl mx-auto"
       >
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -185,22 +185,24 @@ const Hero = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
-              className="mt-12 w-full max-w-3xl mx-auto"
+              className="mt-12 w-full mx-auto"
             >
-              <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Today's Videos</h2>
-              <div className="space-y-4">
+              <h2 className="text-2xl font-bold mb-4 text-left text-gray-800">Today's Videos</h2>
+              <div className="space-y-2 divide-y divide-gray-100">
                 {todayVideos.map((video) => (
-                  <VideoCard
-                    key={video.id}
-                    title={video.video_title}
-                    views={video.views || 0}
-                    thumbnail={video.thumbnail_url}
-                    channelName={video.channel_name}
-                    publishedAt={video.published_at}
-                    videoUrl={video.video_url}
-                    channelUrl={video.creators?.channel_url}
-                    subscriberCount={video.creators?.subscribers_count || 0}
-                  />
+                  <div key={video.id} className="pt-2 first:pt-0">
+                    <VideoCard
+                      title={video.video_title}
+                      views={video.views || 0}
+                      thumbnail={video.thumbnail_url}
+                      channelName={video.channel_name}
+                      publishedAt={video.published_at}
+                      videoUrl={video.video_url}
+                      channelUrl={video.creators?.channel_url}
+                      subscriberCount={video.creators?.subscribers_count || 0}
+                      variant="compact"
+                    />
+                  </div>
                 ))}
               </div>
             </motion.div>
