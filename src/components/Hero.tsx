@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import Button from "./Button";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfDay, endOfDay, formatDistanceToNow } from "date-fns";
+import { startOfDay, endOfDay } from "date-fns";
 import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import VideoCard from "./VideoCard";
 
 const Hero = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -22,9 +23,9 @@ const Hero = () => {
       const start = startOfDay(today);
       const end = endOfDay(today);
       
-      const { data, error } = await supabase
+      const { data: videos, error } = await supabase
         .from('youtube_videos')
-        .select('*')
+        .select('*, creators!inner(subscribers_count)')
         .gte('published_at', start.toISOString())
         .lte('published_at', end.toISOString())
         .order('published_at', { ascending: false });
@@ -34,8 +35,8 @@ const Hero = () => {
         throw error;
       }
       
-      console.log('Today videos:', data);
-      return data || [];
+      console.log('Today videos:', videos);
+      return videos || [];
     }
   });
 
@@ -183,37 +184,17 @@ const Hero = () => {
               <h2 className="text-2xl font-bold mb-8 text-left text-gray-800">Today's Videos</h2>
               <div className="space-y-4">
                 {todayVideos.map((video) => (
-                  <div 
+                  <VideoCard
                     key={video.id}
-                    className="flex gap-4 items-start bg-white/80 backdrop-blur-sm p-4 rounded-lg border-2 border-black/5 hover:border-primary/20 transition-colors duration-200"
-                  >
-                    <div 
-                      className="relative w-40 aspect-video flex-shrink-0 overflow-hidden rounded-md cursor-pointer"
-                      onClick={() => handleVideoClick(video.video_url)}
-                    >
-                      <img 
-                        src={video.thumbnail_url} 
-                        alt={video.video_title}
-                        className="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                      />
-                    </div>
-                    <div className="flex-grow min-w-0 text-left">
-                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 hover:line-clamp-none transition-all duration-200">
-                        {video.video_title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-1">{video.channel_name}</p>
-                      <div className="flex flex-col gap-0.5 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <span>{(video.views || 0).toLocaleString()} views</span>
-                          <span>•</span>
-                          <span>{formatDistanceToNow(new Date(video.published_at), { addSuffix: true })}</span>
-                        </div>
-                        <span className="text-xs">
-                          {formatInTimeZone(new Date(video.published_at), 'Europe/Paris', 'PPP')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+                    title={video.video_title}
+                    views={video.views || 0}
+                    thumbnail={video.thumbnail_url}
+                    channelName={video.channel_name}
+                    publishedAt={video.published_at}
+                    videoUrl={video.video_url}
+                    channelUrl={video.creators?.channel_url}
+                    subscriberCount={video.creators?.subscribers_count || 0}
+                  />
                 ))}
               </div>
             </motion.div>
