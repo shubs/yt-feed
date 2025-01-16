@@ -25,7 +25,13 @@ const Hero = () => {
       
       const { data: videos, error } = await supabase
         .from('youtube_videos')
-        .select('*, creators!inner(subscribers_count)')
+        .select(`
+          *,
+          creators!inner(
+            subscribers_count,
+            channel_url
+          )
+        `)
         .gte('published_at', start.toISOString())
         .lte('published_at', end.toISOString())
         .order('published_at', { ascending: false });
